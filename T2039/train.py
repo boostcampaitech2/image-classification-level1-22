@@ -1,4 +1,5 @@
 import os
+import random
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -20,7 +21,7 @@ from util.slack_noti import SlackNoti
 from util.custom_loss import F1_Loss
 import wandb
 
-MODEL_PATH = '/opt/ml/code/github/model/saved'
+MODEL_PATH = '/opt/ml/code/level1-22/T2039/model/saved'
 INPUT_DATA_ROOT_PATH = '/opt/ml/input/data'
 DEVICE = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 SEED = 2021
@@ -31,7 +32,7 @@ LEARNING_RATE = 1e-3
 NUM_EPOCH = 10
 EARLY_STOP = 9999
 NUM_ACCUM = 1
-AGE_CAT_TYPE = 2 # 1: 60세 이상을 60세 이상으로 분류, 2: 58,59세도 60세 이상으로 분류
+AGE_CAT_TYPE = 1 # 1: 60세 이상을 60세 이상으로 분류, 2: 58,59세도 60세 이상으로 분류
 
 def seed_everything(seed):
     random.seed(seed)

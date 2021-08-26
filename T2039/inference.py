@@ -11,9 +11,9 @@ from util.transform import get_transfrom
 from model.custom_model import CustomResNet18, CustomEfficientNet, CustomVit
 from util.slack_noti import SlackNoti
 
-MODEL_PATH = '/opt/ml/code/github/model/saved'
+MODEL_PATH = '/opt/ml/code/level1-22/T2039/model/saved'
 TEST_PATH = '/opt/ml/input/data/eval'
-SUBMISSION_PATH = '/opt/ml/code/github/submission'
+SUBMISSION_PATH = '/opt/ml/code/level1-22/T2039/submission'
 DEVICE = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 NUM_CLASSES = 18
 
@@ -31,7 +31,7 @@ def main():
     dataset = CustomDataset(img_paths, transform)
     dataloader = DataLoader(dataset, shuffle=False)
     
-    checkpoint = torch.load(os.path.join(MODEL_PATH, 'efficientNet_checkpoint_20210826185154_007.pt'))
+    checkpoint = torch.load(os.path.join(MODEL_PATH, 'efficientNet_checkpoint_20210826211813_001.pt'))
     #model = CustomResNet18(NUM_CLASSES)
     #model = CustomVit(NUM_CLASSES)
     model = CustomEfficientNet(NUM_CLASSES)
@@ -52,7 +52,7 @@ def main():
 
     # save
     time_str = dt.now().astimezone(timezone("Asia/Seoul")).strftime('%Y%m%d%H%M%S')
-    df_info.to_csv(os.path.join(SUBMISSION_PATH, f"submission_18_{time_str}.csv"), index=False)
+    df_info.to_csv(os.path.join(SUBMISSION_PATH, f"submission_test_{time_str}.csv"), index=False)
     msg = 'inference finished'
     print(msg)
     noti.send_message(msg)
