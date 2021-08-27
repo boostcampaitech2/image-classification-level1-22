@@ -1,1 +1,6 @@
-hi
+hi2
+hello
+
+change2
+
+Pull Rqeuest 상태에서 리뷰 받은 내용에 맞게 코드 수정
