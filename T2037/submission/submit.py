@@ -11,7 +11,6 @@ from torchvision import transforms
 from torchvision.transforms import Resize, ToTensor, Normalize, CenterCrop
 
 from model import ViTBase16
-import tqdm
 
 torch.manual_seed(42)
 test_dir = "/opt/ml/input/data/eval"
@@ -53,27 +52,17 @@ loader = DataLoader(dataset, shuffle=False)
 # 모델을 정의합니다. (학습한 모델이 있다면 torch.load로 모델을 불러주세요!)
 device = torch.device("cuda")
 
-model_age = torch.load("/opt/ml/model_only_age/efficient_Thu Aug 26 05:08:09 2021_0.9889599084854126.pt")
-model_jender = torch.load("/opt/ml/model_only_jender/efficient_Thu Aug 26 05:44:23 2021_0.9956563711166382.pt")
-model_mask = torch.load("/opt/ml/model_only_mask/efficient_Thu Aug 26 06:17:19 2021_0.9958373308181763.pt")
-model_age.to(device)
-model_jender.to(device)
-model_mask.to(device)
-model_age.eval()
-model_jender.eval()
-model_mask.eval()
+model = torch.load("/opt/ml/models/efficient_Thu Aug 26 09:33:34 2021_0.8348817825317383.pt")
+model.to(device)
+model.eval()
 
 # 모델이 테스트 데이터셋을 예측하고 결과를 저장합니다.
 all_predictions = []
-pbar = tqdm.tqdm(loader, total= len(loader), position= True, leave= True)
-for images in pbar:
+for images in loader:
     with torch.no_grad():
         images = images.to(device)
-        age = model_age(images).argmax(dim=-1)
-        jender = model_jender(images).argmax(dim=-1)
-        mask = model_mask(images).argmax(dim=-1)
-
-        preds = age + (jender * 3) + (mask*6)
+        preds = model(images)
+        preds = preds.argmax(dim=1)
         all_predictions.extend(preds.cpu().numpy())
 submission["ans"] = all_predictions
 

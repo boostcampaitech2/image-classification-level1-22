@@ -14,17 +14,17 @@ class Train_Valid_Split:
         valid_idx = 0
 
         for idx in tqdm.tqdm(range(self.csv_file.shape[0])):
-            
+
             if (idx // 7) % 8 == 0:
                 self.valid_df.loc[valid_idx] = self.df.loc[idx]
-                valid_idx += 1  
+                valid_idx += 1
             else:
                 self.train_df.loc[train_idx] = self.df.loc[idx]
                 train_idx += 1
-                              
 
-        self.train_df.to_csv("splitted_train_58.csv")  # csv 파일 형식으로 저장
-        self.valid_df.to_csv("splitted_valid_58.csv")  # csv 파일 형식으로 저장
+        self.train_df.to_csv("splitted_train_58.csv")
+        self.valid_df.to_csv("splitted_valid_58.csv")
+
 
 if __name__ == "__main__":
 
