@@ -1,0 +1,85 @@
+git에서 찾은 git 유효성을 검사하는 중
+git에서 git 2.17.1을(를) 사용하는 중
+> git rev-parse --git-dir
+Open repository: /opt/ml
+> git fetch
+> git status -z -u
+> git symbolic-ref --short HEAD
+> git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track) refs/heads/master refs/remotes/master
+> git for-each-ref --sort -committerdate --format %(refname) %(objectname) %(*objectname)
+> git remote --verbose
+> git check-ignore -v -z --stdin
+> git config --get commit.template
+자격 증명이 없거나 잘못되었습니다.
+Skip silent fetch commands
+자격 증명이 없거나 잘못되었습니다.
+Skip silent fetch commands
+remote: Repository not found.
+fatal: Authentication failed for 'https://github.com/boostcampaitech2/image-classification-level1-22.git/'
+> git show --textconv :input/data/train/train.csv
+> git ls-files --stage -- /opt/ml/input/data/train/train.csv
+> git cat-file -s cb271196e918736df7b783e84af928eb3a9d88f7
+> git check-ignore -v -z --stdin
+> git check-ignore -v -z --stdin
+> git check-ignore -v -z --stdin
+> git check-ignore -v -z --stdin
+> git check-ignore -v -z --stdin
+> git check-ignore -v -z --stdin
+> git show --textconv :T2247/.ipynb_checkpoints/T2247_황인재-checkpoint.txt
+> git ls-files --stage -- /opt/ml/T2247/.ipynb_checkpoints/T2247_황인재-checkpoint.txt
+> git show --textconv :T2247/T2247_황인재.txt
+> git ls-files --stage -- /opt/ml/T2247/T2247_황인재.txt
+> git cat-file -s e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+> git show --textconv :T2247/.ipynb_checkpoints/T2247_황인재-checkpoint.txt
+> git ls-files --stage -- /opt/ml/T2247/.ipynb_checkpoints/T2247_황인재-checkpoint.txt
+> git check-ignore -v -z --stdin
+> git log --format=%H%n%aN%n%aE%n%at%n%ct%n%P%n%B -z -n21 -- /opt/ml/T2247/.ipynb_checkpoints/T2247_황인재-checkpoint.txt
+> git check-ignore -v -z --stdin
+> git show --textconv :T2247/test.py
+> git ls-files --stage -- /opt/ml/T2247/test.py
+> git branch
+> git reset -q HEAD -- .
+> git status -z -u
+> git symbolic-ref --short HEAD
+> git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track) refs/heads/master refs/remotes/master
+> git for-each-ref --sort -committerdate --format %(refname) %(objectname) %(*objectname)
+> git remote --verbose
+> git config --get commit.template
+> git ls-files --stage -- /opt/ml/T2247/test.py
+> git show --textconv :T2247/test.py
+> git check-ignore -v -z --stdin
+> git log --format=%H%n%aN%n%aE%n%at%n%ct%n%P%n%B -z -n21 -- /opt/ml/T2247/test.py
+> git check-ignore -v -z --stdin
+> git check-ignore -v -z --stdin
+> git check-ignore -v -z --stdin
+> git add -A -- .
+> git -c user.useConfigOnly=true commit --quiet --allow-empty-message --file -
+
+*** Please tell me who you are.
+
+Run
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+
+fatal: no email was given and auto-detection is disabled
+> git config --get-all user.name
+> git add -A -- .
+> git -c user.useConfigOnly=true commit --quiet --allow-empty-message --file -
+
+*** Please tell me who you are.
+
+Run
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+
+fatal: no email was given and auto-detection is disabled
+> git config --get-all user.name
+> git add -A -- .

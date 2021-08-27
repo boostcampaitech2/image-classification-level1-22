@@ -1,0 +1,30 @@
+
+
+*
+* Visual Studio Code Server
+*
+* Reminder: You may only use this software with Visual Studio family products,
+* as described in the license https://aka.ms/vscode-remote/license
+*
+
+Extension host agent listening on 40040
+
+[07:36:36] Extension host agent started.
+[07:36:36] [127.0.0.1][e99a2c54][ManagementConnection] New connection established.
+[07:36:36] [127.0.0.1][0c1e1c31][ExtensionHostConnection] New connection established.
+[07:36:36] [127.0.0.1][0c1e1c31][ExtensionHostConnection] <11072> Launched Extension Host Process.
+[07:36:38] [File Watcher (chokidar)] Inotify limit reached (ENOSPC)
+[08:07:29] [127.0.0.1][e99a2c54][ManagementConnection] The client has disconnected gracefully, so the connection will be disposed.
+[08:07:30] [127.0.0.1][0c1e1c31][ExtensionHostConnection] <11072> Extension Host Process exited with code: 0, signal: null.
+Last EH closed, waiting before shutting down
+[08:07:30] Last EH closed, waiting before shutting down
+Got delay-shutdown request while in shutdown timeout, delaying
+[08:07:38] Got delay-shutdown request while in shutdown timeout, delaying
+Cancelling previous shutdown timeout
+[08:07:38] Cancelling previous shutdown timeout
+[08:07:39] [127.0.0.1][8da7fc28][ManagementConnection] New connection established.
+[08:07:39] [127.0.0.1][18f4da80][ExtensionHostConnection] New connection established.
+[08:07:39] [127.0.0.1][18f4da80][ExtensionHostConnection] <13952> Launched Extension Host Process.
+[08:07:40] [File Watcher (chokidar)] Inotify limit reached (ENOSPC)
+New EH opened, aborting shutdown
+[08:12:38] New EH opened, aborting shutdown

@@ -1,0 +1,44 @@
+[2021-08-26 14:10:20.213] [remoteagent] [info] 
+
+*
+* Visual Studio Code Server
+*
+* Reminder: You may only use this software with Visual Studio family products,
+* as described in the license https://aka.ms/vscode-remote/license
+*
+
+
+[2021-08-26 14:10:20.213] [remoteagent] [info] Extension host agent started.
+[2021-08-26 14:10:20.338] [remoteagent] [info] [127.0.0.1][c7edac14][ExtensionHostConnection] New connection established.
+[2021-08-26 14:10:20.339] [remoteagent] [info] [127.0.0.1][d3fd5d5c][ManagementConnection] New connection established.
+[2021-08-26 14:10:20.346] [remoteagent] [info] [127.0.0.1][c7edac14][ExtensionHostConnection] <8073> Launched Extension Host Process.
+[2021-08-26 14:10:22.162] [remoteagent] [error] [File Watcher (chokidar)] Inotify limit reached (ENOSPC)
+[2021-08-26 14:11:22.725] [remoteagent] [info] Installing extension: ms-toolsai.jupyter
+[2021-08-26 14:11:23.725] [remoteagent] [info] Downloaded extension: ms-toolsai.jupyter /opt/ml/.vscode-server/data/CachedExtensionVSIXs/ms-toolsai.jupyter-2021.8.1236758218
+[2021-08-26 14:11:24.928] [remoteagent] [info] Extracted extension to /opt/ml/.vscode-server/extensions/.722e0ca3-8212-49c7-9b86-c23a9e901ebe: ms-toolsai.jupyter
+[2021-08-26 14:11:24.946] [remoteagent] [info] Renamed to /opt/ml/.vscode-server/extensions/ms-toolsai.jupyter-2021.8.1236758218
+[2021-08-26 14:11:24.949] [remoteagent] [info] Extracting completed. ms-toolsai.jupyter
+[2021-08-26 14:11:24.955] [remoteagent] [info] Extension installed successfully: ms-toolsai.jupyter
+[2021-08-26 14:12:31.019] [remoteagent] [info] Installing extension: ms-python.python
+[2021-08-26 14:12:31.445] [remoteagent] [info] Installing extension: ms-python.vscode-pylance
+[2021-08-26 14:12:32.360] [remoteagent] [info] Downloaded extension: ms-python.python /opt/ml/.vscode-server/data/CachedExtensionVSIXs/ms-python.python-2021.8.1159798656
+[2021-08-26 14:12:35.840] [remoteagent] [info] Extracted extension to /opt/ml/.vscode-server/extensions/.26913ead-dad4-4aa5-b91f-1bf6c57c2adb: ms-python.python
+[2021-08-26 14:12:35.879] [remoteagent] [info] Renamed to /opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656
+[2021-08-26 14:12:35.882] [remoteagent] [info] Extracting completed. ms-python.python
+[2021-08-26 14:12:36.792] [remoteagent] [info] Downloaded extension: ms-python.vscode-pylance /opt/ml/.vscode-server/data/CachedExtensionVSIXs/ms-python.vscode-pylance-2021.8.3
+[2021-08-26 14:12:39.611] [remoteagent] [info] Extracted extension to /opt/ml/.vscode-server/extensions/.713e2198-ba14-4ef8-b799-1538ec71ee77: ms-python.vscode-pylance
+[2021-08-26 14:12:39.631] [remoteagent] [info] Renamed to /opt/ml/.vscode-server/extensions/ms-python.vscode-pylance-2021.8.3
+[2021-08-26 14:12:39.632] [remoteagent] [info] Extracting completed. ms-python.vscode-pylance
+[2021-08-26 14:12:39.636] [remoteagent] [info] Extension installed successfully: ms-python.python
+[2021-08-26 14:12:39.636] [remoteagent] [info] Extension installed successfully: ms-python.vscode-pylance
+[2021-08-26 14:12:52.030] [remoteagent] [info] Installing extension: mhutchie.git-graph
+[2021-08-26 14:12:53.041] [remoteagent] [info] Downloaded extension: mhutchie.git-graph /opt/ml/.vscode-server/data/CachedExtensionVSIXs/mhutchie.git-graph-1.30.0
+[2021-08-26 14:12:53.102] [remoteagent] [info] Extracted extension to /opt/ml/.vscode-server/extensions/.f58b4f84-0336-4d53-9fc6-e17d99e41595: mhutchie.git-graph
+[2021-08-26 14:12:53.110] [remoteagent] [info] Renamed to /opt/ml/.vscode-server/extensions/mhutchie.git-graph-1.30.0
+[2021-08-26 14:12:53.111] [remoteagent] [info] Extracting completed. mhutchie.git-graph
+[2021-08-26 14:12:53.116] [remoteagent] [info] Extension installed successfully: mhutchie.git-graph
+[2021-08-26 15:47:35.428] [remoteagent] [info] [127.0.0.1][d3fd5d5c][ManagementConnection] The client has disconnected, will wait for reconnection 3h before disposing...
+[2021-08-26 18:47:29.580] [remoteagent] [info] [127.0.0.1][c7edac14][ExtensionHostConnection] <8073> Extension Host Process exited with code: 0, signal: null.
+[2021-08-26 18:47:29.580] [remoteagent] [info] Last EH closed, waiting before shutting down
+[2021-08-26 18:47:35.428] [remoteagent] [info] [127.0.0.1][d3fd5d5c][ManagementConnection] The reconnection grace time of 3h has expired, so the connection will be disposed.
+[2021-08-26 18:52:29.582] [remoteagent] [info] Last EH closed, shutting down

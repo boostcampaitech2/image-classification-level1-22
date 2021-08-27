@@ -1,0 +1,34 @@
+[2021-08-27 08:07:40.197] Starting Git Graph ...
+[2021-08-27 08:07:40.215] Using git (version: 2.17.1)
+[2021-08-27 08:07:40.225] > git rev-parse --show-toplevel
+[2021-08-27 08:07:40.226] Showing "Git Graph" Status Bar Item
+[2021-08-27 08:07:40.228] Started Git Graph - Ready to use!
+[2021-08-27 08:07:40.256] Searching workspace for new repos ...
+[2021-08-27 08:07:40.257] Completed searching workspace for new repos
+[2021-08-27 08:07:40.356] Successfully set Visual Studio Code Context "git-graph:codiconsSupported" to "true"
+[2021-08-27 08:10:02.855] Created Git Graph View
+[2021-08-27 08:10:03.030] > git branch -a --no-color
+[2021-08-27 08:10:03.045] > git remote
+[2021-08-27 08:10:03.056] > git reflog --format=... refs/stash --
+[2021-08-27 08:10:03.059] Started watching repo: /opt/ml
+[2021-08-27 08:10:03.116] > git -c log.showSignature=false log --max-count=301 --format=... --date-order --branches --tags --remotes HEAD --
+[2021-08-27 08:10:03.128] > git show-ref -d --head
+[2021-08-27 08:10:03.137] > git status --untracked-files=all --porcelain
+[2021-08-27 08:10:03.555] > git --no-pager config --list -z --includes
+[2021-08-27 08:10:03.568] > git --no-pager config --list -z --includes --local
+[2021-08-27 08:10:03.579] > git --no-pager config --list -z --includes --global
+[2021-08-27 08:10:26.573] > git -c log.showSignature=false show --quiet eae04cd547fd29cf08d97c133daf717a94415b5f --format=...
+[2021-08-27 08:10:26.588] > git diff --name-status --find-renames --diff-filter=AMDR -z eae04cd547fd29cf08d97c133daf717a94415b5f^ eae04cd547fd29cf08d97c133daf717a94415b5f
+[2021-08-27 08:10:26.602] > git diff --numstat --find-renames --diff-filter=AMDR -z eae04cd547fd29cf08d97c133daf717a94415b5f^ eae04cd547fd29cf08d97c133daf717a94415b5f
+[2021-08-27 08:10:58.822] > git branch -a --no-color
+[2021-08-27 08:10:58.837] > git remote
+[2021-08-27 08:10:58.852] > git reflog --format=... refs/stash --
+[2021-08-27 08:10:58.905] > git -c log.showSignature=false log --max-count=301 --format=... --date-order --branches --tags --remotes HEAD --
+[2021-08-27 08:10:58.920] > git show-ref -d --head
+[2021-08-27 08:10:58.931] > git status --untracked-files=all --porcelain
+[2021-08-27 08:11:56.371] > git branch -a --no-color
+[2021-08-27 08:11:56.381] > git remote
+[2021-08-27 08:11:56.391] > git reflog --format=... refs/stash --
+[2021-08-27 08:11:56.443] > git -c log.showSignature=false log --max-count=301 --format=... --date-order --branches --tags --remotes HEAD --
+[2021-08-27 08:11:56.452] > git show-ref -d --head
+[2021-08-27 08:11:56.462] > git status --untracked-files=all --porcelain

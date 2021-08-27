@@ -1,0 +1,48 @@
+[2021-08-27 07:36:38.089] Starting Git Graph ...
+[2021-08-27 07:36:38.117] Using git (version: 2.17.1)
+[2021-08-27 07:36:38.130] > git rev-parse --show-toplevel
+[2021-08-27 07:36:38.131] Showing "Git Graph" Status Bar Item
+[2021-08-27 07:36:38.132] Started Git Graph - Ready to use!
+[2021-08-27 07:36:38.168] Searching workspace for new repos ...
+[2021-08-27 07:36:38.168] Completed searching workspace for new repos
+[2021-08-27 07:36:38.577] Successfully set Visual Studio Code Context "git-graph:codiconsSupported" to "true"
+[2021-08-27 07:36:43.874] Created Git Graph View
+[2021-08-27 07:36:44.060] > git branch -a --no-color
+[2021-08-27 07:36:44.083] > git remote
+[2021-08-27 07:36:44.094] > git reflog --format=... refs/stash --
+[2021-08-27 07:36:44.097] Started watching repo: /opt/ml
+[2021-08-27 07:36:44.168] > git -c log.showSignature=false log --max-count=301 --format=... --date-order --branches --tags --remotes HEAD --
+[2021-08-27 07:36:44.180] > git show-ref -d --head
+[2021-08-27 07:36:48.943] > git branch -a --no-color
+[2021-08-27 07:36:48.965] > git remote
+[2021-08-27 07:36:48.989] > git reflog --format=... refs/stash --
+[2021-08-27 07:36:49.049] > git -c log.showSignature=false log --max-count=301 --format=... --date-order --branches --tags --remotes HEAD --
+[2021-08-27 07:36:49.086] > git show-ref -d --head
+[2021-08-27 07:36:49.909] > git branch -a --no-color
+[2021-08-27 07:36:49.932] > git remote
+[2021-08-27 07:36:49.954] > git reflog --format=... refs/stash --
+[2021-08-27 07:36:50.013] > git -c log.showSignature=false log --max-count=301 --format=... --date-order --branches --tags --remotes HEAD --
+[2021-08-27 07:36:50.034] > git show-ref -d --head
+[2021-08-27 07:37:58.485] > git branch -a --no-color
+[2021-08-27 07:37:58.500] > git remote
+[2021-08-27 07:37:58.515] > git reflog --format=... refs/stash --
+[2021-08-27 07:37:58.569] > git -c log.showSignature=false log --max-count=301 --format=... --date-order --branches --tags --remotes HEAD --
+[2021-08-27 07:37:58.584] > git show-ref -d --head
+[2021-08-27 07:39:37.121] Stopped watching repo: /opt/ml
+[2021-08-27 07:40:01.950] > git branch -a --no-color
+[2021-08-27 07:40:01.991] > git remote
+[2021-08-27 07:40:02.028] > git reflog --format=... refs/stash --
+[2021-08-27 07:40:02.031] Started watching repo: /opt/ml
+[2021-08-27 07:40:02.097] > git -c log.showSignature=false log --max-count=301 --format=... --date-order --branches --tags --remotes HEAD --
+[2021-08-27 07:40:02.136] > git show-ref -d --head
+[2021-08-27 07:40:03.318] > git branch -a --no-color
+[2021-08-27 07:40:03.356] > git remote
+[2021-08-27 07:40:03.394] > git reflog --format=... refs/stash --
+[2021-08-27 07:40:03.463] > git -c log.showSignature=false log --max-count=301 --format=... --date-order --branches --tags --remotes HEAD --
+[2021-08-27 07:40:03.501] > git show-ref -d --head
+[2021-08-27 07:40:14.967] > git branch -a --no-color
+[2021-08-27 07:40:14.998] > git remote
+[2021-08-27 07:40:15.029] > git reflog --format=... refs/stash --
+[2021-08-27 07:40:15.093] > git -c log.showSignature=false log --max-count=301 --format=... --date-order --branches --tags --remotes HEAD --
+[2021-08-27 07:40:15.125] > git show-ref -d --head
+[2021-08-27 07:40:15.721] Stopped watching repo: /opt/ml

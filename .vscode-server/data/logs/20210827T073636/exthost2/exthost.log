@@ -1,0 +1,87 @@
+[2021-08-27 08:07:39.946] [exthost] [info] extension host started
+[2021-08-27 08:07:39.956] [exthost] [info] Lock '/opt/ml/.vscode-server/data/User/workspaceStorage/868326161f723fffa27566f36ac88867/vscode.lock': Lock acquired.
+[2021-08-27 08:07:39.995] [exthost] [info] ExtensionService#_doActivateExtension vscode.debug-auto-launch {"startup":true,"extensionId":{"value":"vscode.debug-auto-launch","_lower":"vscode.debug-auto-launch"},"activationEvent":"*"}
+[2021-08-27 08:07:39.995] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/extensions/debug-auto-launch/dist/extension
+[2021-08-27 08:07:40.001] [exthost] [info] ExtensionService#_doActivateExtension vscode.git {"startup":true,"extensionId":{"value":"vscode.github","_lower":"vscode.github"},"activationEvent":"*"}
+[2021-08-27 08:07:40.001] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/extensions/git/dist/main
+[2021-08-27 08:07:40.087] [exthost] [info] ExtensionService#_doActivateExtension mhutchie.git-graph {"startup":true,"extensionId":{"value":"mhutchie.git-graph","_lower":"mhutchie.git-graph"},"activationEvent":"*"}
+[2021-08-27 08:07:40.087] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/extensions/mhutchie.git-graph-1.30.0/out/extension.js
+[2021-08-27 08:07:40.245] [exthost] [info] ExtensionService#_doActivateExtension vscode.github {"startup":true,"extensionId":{"value":"vscode.github","_lower":"vscode.github"},"activationEvent":"*"}
+[2021-08-27 08:07:40.245] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/extensions/github/dist/extension.js
+[2021-08-27 08:07:40.358] [exthost] [info] ExtensionService#_doActivateExtension vscode.emmet {"startup":false,"extensionId":{"value":"vscode.emmet","_lower":"vscode.emmet"},"activationEvent":"onStartupFinished"}
+[2021-08-27 08:07:40.359] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/extensions/emmet/dist/node/emmetNodeMain
+[2021-08-27 08:07:40.380] [exthost] [info] ExtensionService#_doActivateExtension vscode.merge-conflict {"startup":false,"extensionId":{"value":"vscode.merge-conflict","_lower":"vscode.merge-conflict"},"activationEvent":"onStartupFinished"}
+[2021-08-27 08:07:40.380] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/extensions/merge-conflict/dist/mergeConflictMain
+[2021-08-27 08:07:40.385] [exthost] [info] eager extensions activated
+[2021-08-27 08:07:40.389] [exthost] [info] ExtensionService#_doActivateExtension ms-vscode.js-debug {"startup":false,"extensionId":{"value":"ms-vscode.js-debug","_lower":"ms-vscode.js-debug"},"activationEvent":"onCommand:extension.js-debug.clearAutoAttachVariables"}
+[2021-08-27 08:07:40.389] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/extensions/ms-vscode.js-debug/src/extension.js
+[2021-08-27 08:07:40.896] [exthost] [warning] [Decorations] CAPPING events from decorations provider vscode.git 5000
+[2021-08-27 08:08:30.857] [exthost] [info] ExtensionService#_doActivateExtension ms-python.python {"startup":false,"extensionId":{"value":"ms-python.vscode-pylance","_lower":"ms-python.vscode-pylance"},"activationEvent":"onLanguage:python"}
+[2021-08-27 08:08:30.858] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension
+[2021-08-27 08:08:31.146] [exthost] [info] ExtensionService#_doActivateExtension ms-toolsai.jupyter {"startup":false,"extensionId":{"value":"ms-toolsai.jupyter","_lower":"ms-toolsai.jupyter"},"activationEvent":"onLanguage:python"}
+[2021-08-27 08:08:31.146] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/extensions/ms-toolsai.jupyter-2021.8.1236758218/out/client/extension
+[2021-08-27 08:08:32.042] [exthost] [info] ExtensionService#_doActivateExtension ms-python.vscode-pylance {"startup":false,"extensionId":{"value":"ms-python.vscode-pylance","_lower":"ms-python.vscode-pylance"},"activationEvent":"onLanguage:python"}
+[2021-08-27 08:08:32.043] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/extensions/ms-python.vscode-pylance-2021.8.3/dist/extension.bundle.js
+[2021-08-27 08:08:39.175] [exthost] [error] [ms-python.python] provider FAILED
+[2021-08-27 08:08:39.175] [exthost] [error] Canceled: Canceled
+	at _.makeCancelError (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155434)
+	at _.handleFailedRequest (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155285)
+	at /opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:114439
+	at async z.provideCompletionItems (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:85:175170)
+[2021-08-27 08:08:39.657] [exthost] [error] [ms-python.python] provider FAILED
+[2021-08-27 08:08:39.657] [exthost] [error] Canceled: Canceled
+	at _.makeCancelError (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155434)
+	at _.handleFailedRequest (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155285)
+	at /opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:123146
+	at async k.provideCodeActions (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:85:166936)
+[2021-08-27 08:08:39.699] [exthost] [error] [ms-python.python] provider FAILED
+[2021-08-27 08:08:39.700] [exthost] [error] Canceled: Canceled
+	at _.makeCancelError (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155434)
+	at _.handleFailedRequest (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155285)
+	at /opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:59:153599
+	at async F.provideDocumentRangeSemanticTokens (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:85:174476)
+[2021-08-27 08:08:39.709] [exthost] [error] [ms-python.python] provider FAILED
+[2021-08-27 08:08:39.709] [exthost] [error] Canceled: Canceled
+	at _.makeCancelError (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155434)
+	at _.handleFailedRequest (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155285)
+	at /opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:59:153599
+	at async F.provideDocumentRangeSemanticTokens (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:85:174476)
+[2021-08-27 08:08:39.710] [exthost] [error] [ms-python.python] provider FAILED
+[2021-08-27 08:08:39.710] [exthost] [error] Canceled: Canceled
+	at _.makeCancelError (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155434)
+	at _.handleFailedRequest (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155285)
+	at /opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:123146
+	at async k.provideCodeActions (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:85:166936)
+[2021-08-27 08:08:39.717] [exthost] [error] [ms-python.python] provider FAILED
+[2021-08-27 08:08:39.717] [exthost] [error] Canceled: Canceled
+	at _.makeCancelError (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155434)
+	at _.handleFailedRequest (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155285)
+	at /opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:59:153599
+	at async F.provideDocumentRangeSemanticTokens (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:85:174476)
+[2021-08-27 08:08:39.725] [exthost] [error] [ms-python.python] provider FAILED
+[2021-08-27 08:08:39.725] [exthost] [error] Canceled: Canceled
+	at _.makeCancelError (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155434)
+	at _.handleFailedRequest (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155285)
+	at /opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:59:153599
+	at async F.provideDocumentRangeSemanticTokens (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:85:174476)
+[2021-08-27 08:08:39.734] [exthost] [error] [ms-python.python] provider FAILED
+[2021-08-27 08:08:39.734] [exthost] [error] Canceled: Canceled
+	at _.makeCancelError (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155434)
+	at _.handleFailedRequest (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155285)
+	at /opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:59:153599
+	at async F.provideDocumentRangeSemanticTokens (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:85:174476)
+[2021-08-27 08:08:39.750] [exthost] [error] [ms-python.python] provider FAILED
+[2021-08-27 08:08:39.750] [exthost] [error] Canceled: Canceled
+	at _.makeCancelError (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155434)
+	at _.handleFailedRequest (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155285)
+	at /opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:59:153599
+	at async F.provideDocumentRangeSemanticTokens (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:85:174476)
+[2021-08-27 08:08:44.151] [exthost] [error] [ms-python.python] provider FAILED
+[2021-08-27 08:08:44.151] [exthost] [error] Canceled: Canceled
+	at _.makeCancelError (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155434)
+	at _.handleFailedRequest (/opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:155285)
+	at /opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension.js:9:123146
+	at async k.provideCodeActions (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:85:166936)
+[2021-08-27 08:08:52.693] [exthost] [info] ExtensionService#_doActivateExtension vscode.debug-server-ready {"startup":false,"extensionId":{"value":"vscode.debug-server-ready","_lower":"vscode.debug-server-ready"},"activationEvent":"onDebugResolve"}
+[2021-08-27 08:08:52.693] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/extensions/debug-server-ready/dist/extension
+[2021-08-27 08:09:14.363] [exthost] [warning] [Decorations] CAPPING events from decorations provider vscode.git 5008

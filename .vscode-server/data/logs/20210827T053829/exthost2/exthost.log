@@ -1,0 +1,66 @@
+[2021-08-27 07:30:02.572] [exthost] [info] extension host started
+[2021-08-27 07:30:02.586] [exthost] [info] Lock '/opt/ml/.vscode-server/data/User/workspaceStorage/868326161f723fffa27566f36ac88867/vscode.lock': Lock acquired.
+[2021-08-27 07:30:02.623] [exthost] [info] ExtensionService#_doActivateExtension ms-python.python {"startup":false,"extensionId":{"value":"ms-python.vscode-pylance","_lower":"ms-python.vscode-pylance"},"activationEvent":"onLanguage:python"}
+[2021-08-27 07:30:02.624] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/extensions/ms-python.python-2021.8.1159798656/out/client/extension
+[2021-08-27 07:30:02.938] [exthost] [info] ExtensionService#_doActivateExtension ms-toolsai.jupyter {"startup":false,"extensionId":{"value":"ms-toolsai.jupyter","_lower":"ms-toolsai.jupyter"},"activationEvent":"onLanguage:python"}
+[2021-08-27 07:30:02.938] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/extensions/ms-toolsai.jupyter-2021.8.1236758218/out/client/extension
+[2021-08-27 07:30:03.274] [exthost] [info] ExtensionService#_doActivateExtension vscode.debug-auto-launch {"startup":true,"extensionId":{"value":"vscode.debug-auto-launch","_lower":"vscode.debug-auto-launch"},"activationEvent":"*"}
+[2021-08-27 07:30:03.274] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/extensions/debug-auto-launch/dist/extension
+[2021-08-27 07:30:03.279] [exthost] [info] ExtensionService#_doActivateExtension vscode.git {"startup":true,"extensionId":{"value":"vscode.github","_lower":"vscode.github"},"activationEvent":"*"}
+[2021-08-27 07:30:03.279] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/extensions/git/dist/main
+[2021-08-27 07:30:03.371] [exthost] [info] ExtensionService#_doActivateExtension mhutchie.git-graph {"startup":true,"extensionId":{"value":"mhutchie.git-graph","_lower":"mhutchie.git-graph"},"activationEvent":"*"}
+[2021-08-27 07:30:03.371] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/extensions/mhutchie.git-graph-1.30.0/out/extension.js
+[2021-08-27 07:30:03.561] [exthost] [info] ExtensionService#_doActivateExtension vscode.github {"startup":true,"extensionId":{"value":"vscode.github","_lower":"vscode.github"},"activationEvent":"*"}
+[2021-08-27 07:30:03.561] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/extensions/github/dist/extension.js
+[2021-08-27 07:30:03.912] [exthost] [info] ExtensionService#_doActivateExtension vscode.emmet {"startup":false,"extensionId":{"value":"vscode.emmet","_lower":"vscode.emmet"},"activationEvent":"onStartupFinished"}
+[2021-08-27 07:30:03.912] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/extensions/emmet/dist/node/emmetNodeMain
+[2021-08-27 07:30:03.931] [exthost] [info] ExtensionService#_doActivateExtension vscode.merge-conflict {"startup":false,"extensionId":{"value":"vscode.merge-conflict","_lower":"vscode.merge-conflict"},"activationEvent":"onStartupFinished"}
+[2021-08-27 07:30:03.931] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/extensions/merge-conflict/dist/mergeConflictMain
+[2021-08-27 07:30:03.936] [exthost] [info] eager extensions activated
+[2021-08-27 07:30:04.123] [exthost] [warning] [Decorations] CAPPING events from decorations provider vscode.git 5000
+[2021-08-27 07:30:05.235] [exthost] [info] ExtensionService#_doActivateExtension ms-vscode.js-debug {"startup":false,"extensionId":{"value":"ms-vscode.js-debug","_lower":"ms-vscode.js-debug"},"activationEvent":"onCommand:extension.js-debug.clearAutoAttachVariables"}
+[2021-08-27 07:30:05.235] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/extensions/ms-vscode.js-debug/src/extension.js
+[2021-08-27 07:30:05.583] [exthost] [info] extension host terminating: received terminate message from renderer
+[2021-08-27 07:30:05.585] [exthost] [info] Lock '/opt/ml/.vscode-server/data/User/workspaceStorage/868326161f723fffa27566f36ac88867/vscode.lock': Marking the lockfile as scheduled to be released in 6000 ms.
+[2021-08-27 07:30:05.642] [exthost] [error] Activating extension ms-vscode.js-debug failed due to an error:
+[2021-08-27 07:30:05.642] [exthost] [error] Canceled: Canceled
+	at Object.i [as canceled] (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:5:1157)
+	at /opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:89:8181
+	at Array.forEach (<anonymous>)
+	at h.dispose (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:89:8129)
+	at P.terminate (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:94:684)
+	at h (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:104:32088)
+	at /opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:104:29997
+	at d.fire (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:57:1712)
+	at c.fire (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:65:15825)
+	at r._receiveMessage (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:65:21091)
+	at /opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:65:17969
+	at d.fire (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:57:1712)
+	at v.acceptChunk (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:65:13186)
+	at /opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:65:12534
+	at d.fire (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:57:1712)
+	at /opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:104:19145
+	at afterWrite (internal/streams/writable.js:466:5)
+	at onwrite (internal/streams/writable.js:446:7)
+	at InflateRaw.afterTransform (internal/streams/transform.js:103:3)
+	at Zlib.processCallback (zlib.js:586:8)
+[2021-08-27 07:30:05.746] [exthost] [info] ExtensionService#_doActivateExtension ms-python.vscode-pylance {"startup":false,"extensionId":{"value":"ms-python.vscode-pylance","_lower":"ms-python.vscode-pylance"},"activationEvent":"onLanguage:python"}
+[2021-08-27 07:30:05.746] [exthost] [info] ExtensionService#loadCommonJSModule file:///opt/ml/.vscode-server/extensions/ms-python.vscode-pylance-2021.8.3/dist/extension.bundle.js
+[2021-08-27 07:30:05.951] [exthost] [error] Activating extension ms-python.vscode-pylance failed due to an error:
+[2021-08-27 07:30:05.951] [exthost] [error] Canceled: Canceled
+	at Object.i [as canceled] (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:5:1157)
+	at h._remoteCall (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:89:12893)
+	at Proxy.w.<computed>.E.charCodeAt.w.<computed> (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:89:9388)
+	at S.getValue (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:86:28686)
+	at new R (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:78:4540)
+	at new I (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:78:5536)
+	at v._loadExtensionContext (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:90:12964)
+	at v._doActivateExtension (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:90:12682)
+	at v._activateExtension (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:90:11704)
+	at Object.actualActivateExtension (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:90:9245)
+	at d._activateExtension (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:85:86446)
+	at /opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:85:86128
+	at Array.map (<anonymous>)
+	at d._activateExtensions (/opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:85:86116)
+	at /opt/ml/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/out/vs/server/remoteExtensionHostProcess.js:85:86217
+[2021-08-27 07:30:06.600] [exthost] [info] exiting with code 0

@@ -1,0 +1,113 @@
+git에서 찾은 git 유효성을 검사하는 중
+git에서 git 2.17.1을(를) 사용하는 중
+> git rev-parse --git-dir
+Open repository: /opt/ml
+> git fetch
+> git status -z -u
+> git symbolic-ref --short HEAD
+> git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track) refs/heads/master refs/remotes/master
+> git for-each-ref --sort -committerdate --format %(refname) %(objectname) %(*objectname)
+> git remote --verbose
+> git config --get commit.template
+> git status -z -u
+> git check-ignore -v -z --stdin
+> git symbolic-ref --short HEAD
+> git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track) refs/heads/master refs/remotes/master
+> git for-each-ref --sort -committerdate --format %(refname) %(objectname) %(*objectname)
+> git remote --verbose
+> git config --get commit.template
+> git check-ignore -v -z --stdin
+> git show --textconv :input/data/train/vscode_test.py
+> git ls-files --stage -- /opt/ml/input/data/train/vscode_test.py
+> git check-ignore -v -z --stdin
+> git check-ignore -v -z --stdin
+> git check-ignore -v -z --stdin
+> git check-ignore -v -z --stdin
+> git log --oneline --cherry master...master@{upstream} --
+fatal: no such branch: 'master...master'
+> git pull --tags
+There is no tracking information for the current branch.
+Please specify which branch you want to merge with.
+See git-pull(1) for details.
+
+    git pull <remote> <branch>
+
+If you wish to set tracking information for this branch you can do so with:
+
+    git branch --set-upstream-to=T2247/<branch> master
+> git show --textconv :input/data/train/vscode_test.py
+> git ls-files --stage -- /opt/ml/input/data/train/vscode_test.py
+> git fetch
+> git status -z -u
+> git symbolic-ref --short HEAD
+> git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track) refs/heads/master refs/remotes/master
+> git for-each-ref --sort -committerdate --format %(refname) %(objectname) %(*objectname)
+> git remote --verbose
+> git config --get commit.template
+> git ls-files --stage -- /opt/ml/input/data/train/vscode_test.py
+> git show --textconv :input/data/train/vscode_test.py
+> git add -A -- .
+> git log --oneline --cherry master...master@{upstream} --
+fatal: no such branch: 'master...master'
+> git pull --tags
+There is no tracking information for the current branch.
+Please specify which branch you want to merge with.
+See git-pull(1) for details.
+
+    git pull <remote> <branch>
+
+If you wish to set tracking information for this branch you can do so with:
+
+    git branch --set-upstream-to=T2247/<branch> master
+> git -c user.useConfigOnly=true commit --quiet --allow-empty-message --file -
+
+*** Please tell me who you are.
+
+Run
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+
+fatal: no email was given and auto-detection is disabled
+> git config --get-all user.name
+> git fetch
+Auto packing the repository in background for optimum performance.
+See "git help gc" for manual housekeeping.
+> git status -z -u
+> git symbolic-ref --short HEAD
+> git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track) refs/heads/master refs/remotes/master
+> git for-each-ref --sort -committerdate --format %(refname) %(objectname) %(*objectname)
+> git remote --verbose
+> git config --get commit.template
+> git fetch
+> git status -z -u
+> git symbolic-ref --short HEAD
+> git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track) refs/heads/master refs/remotes/master
+> git for-each-ref --sort -committerdate --format %(refname) %(objectname) %(*objectname)
+> git remote --verbose
+> git config --get commit.template
+> git check-ignore -v -z --stdin
+> git check-ignore -v -z --stdin
+> git fetch
+> git status -z -u
+> git symbolic-ref --short HEAD
+> git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track) refs/heads/master refs/remotes/master
+> git for-each-ref --sort -committerdate --format %(refname) %(objectname) %(*objectname)
+> git remote --verbose
+> git config --get commit.template
+> git show --textconv :input/data/train/train.csv
+> git ls-files --stage -- /opt/ml/input/data/train/train.csv
+> git cat-file -s cb271196e918736df7b783e84af928eb3a9d88f7
+> git check-ignore -v -z --stdin
+> git check-ignore -v -z --stdin
+> git ls-files --stage -- /opt/ml/input/data/train/train.csv
+> git cat-file -s cb271196e918736df7b783e84af928eb3a9d88f7
+> git show --textconv :input/data/train/train.csv
+> git ls-files --stage -- /opt/ml/input/data/train/train.csv
+> git cat-file -s cb271196e918736df7b783e84af928eb3a9d88f7
+> git show --textconv :input/data/train/train.csv
+> git check-ignore -v -z --stdin
+> git check-ignore -v -z --stdin
