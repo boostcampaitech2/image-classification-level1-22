@@ -1,31 +1,21 @@
 import torchvision
 import torch
-import torch.nn as nn
-import numpy as np
-import pandas as pd
 import os
 import time
 import wandb
 import albumentations as A
-from albumentations.pytorch import ToTensorV2
-
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader
 from torchvision.transforms import Resize, ToTensor, Normalize, CenterCrop
 from torchvision import transforms
 from sklearn.metrics import f1_score
-
 import torch.optim as optm
 import torch.functional as F
 import tqdm
+from pytz import timezone
+from datetime import datetime as dt
 
-from vit import ViT
-from dataset import (
-    Mask_Dataset,
-    Mask_Dataset_Age,
-    Mask_Dataset_Jender,
-    Mask_Dataset_Mask,
-)
-from model import ViTBase16, ResNet50, ViTBase32, R50ViT, Efficientnet
+from data.dataset import Mask_Dataset
+from model.model import ViTBase16, ResNet50, ViTBase32, R50ViT, Efficientnet
 
 device = torch.device("cuda")
 torch.manual_seed(42)
@@ -39,7 +29,7 @@ EPOCHS = 20
 CLASS_NUM = 18
 BATCH_SIZE = 16
 LEARNING_RATE = 0.001
-FREEZE_TRAINED_LAYERS = 0
+# FREEZE_TRAINED_LAYERS = 0
 
 
 def get_dataLoader():
@@ -74,6 +64,8 @@ def train(
 ):
 
     model.to(device)
+    
+    # wandb 설정
     wandb.watch(model)
     wandb.run.name = "Efficient_Net_58"
 
@@ -114,6 +106,7 @@ def train(
             leave=True,
         )
 
+        # 검증
         for idx, (valid_image, labels) in pbar:
             epoch_f1 = 0
 
@@ -144,7 +137,7 @@ def train(
             )
         )
 
-        now = time.strftime("%c", time.localtime(time.time()))
+        now = dt.now().astimezone(timezone("Asia/Seoul")).strftime('%Y%m%d%H%M%S')
         torch.save(
             model, os.path.join("/opt/ml/models", f"58_vit16_{now}_{valid_accuracy}.pt")
         )
