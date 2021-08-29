@@ -1,0 +1,13 @@
+
+Namespace(augmentation='BaseAugmentation', batch_size=64, criterion='cross_entropy', data_dir='/opt/ml/data/train/images', dataset='MaskBaseDataset', epochs=10, log_interval=20, lr=0.001, lr_decay_step=20, model='EfficientNet_self', model_dir='./model', name='EfficientNet_self_supervised_freeze', optimizer='Adam', resize=[224, 224], seed=42, val_ratio=0.2, valid_batch_size=1000, **{'58_to_60': 0})
+Linear(in_features=4048, out_features=18, bias=True)
+Traceback (most recent call last):
+  File "train.py", line 388, in <module>
+    train(data_dir, model_dir, args)
+  File "train.py", line 197, in train
+    loss.backward()
+  File "/opt/conda/lib/python3.8/site-packages/torch/tensor.py", line 221, in backward
+    torch.autograd.backward(self, gradient, retain_graph, create_graph)
+  File "/opt/conda/lib/python3.8/site-packages/torch/autograd/__init__.py", line 130, in backward
+    Variable._execution_engine.run_backward(
+RuntimeError: element 0 of tensors does not require grad and does not have a grad_fn

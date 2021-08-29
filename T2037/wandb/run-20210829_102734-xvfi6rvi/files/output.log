@@ -1,0 +1,10 @@
+
+Namespace(augmentation='BaseAugmentation', batch_size=64, criterion='cross_entropy', data_dir='/opt/ml/data/train/images', dataset='MaskBaseDataset', epochs=10, log_interval=20, lr=0.001, lr_decay_step=20, model='EfficientNet_self', model_dir='./model', name='EfficientNet_self_supervised_freeze', optimizer='Adam', resize=[224, 224], seed=42, val_ratio=0.2, valid_batch_size=1000, **{'58_to_60': 0})
+Traceback (most recent call last):
+  File "train.py", line 387, in <module>
+    train(data_dir, model_dir, args)
+  File "train.py", line 152, in train
+    for params in model.Parameters():
+  File "/opt/conda/lib/python3.8/site-packages/torch/nn/modules/module.py", line 778, in __getattr__
+    raise ModuleAttributeError("'{}' object has no attribute '{}'".format(
+torch.nn.modules.module.ModuleAttributeError: 'EfficientNet_self' object has no attribute 'Parameters'
