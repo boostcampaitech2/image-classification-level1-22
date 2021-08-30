@@ -1,11 +1,20 @@
 {
     "seed": 2021,
-    "num_epoch": 1,
+    "submission_no": "20",
+    "num_epoch": 2,
     "batch_size": 64,
-    "validation_split": 0,   
+    "val_ratio": 0.1,   
     "learning_rate": 0.001,
     "early_stop": 9999,
-    "gradient_accum": 1,
+    "path": {
+        "train_data": "/opt/ml/input/data/train",
+        "eval_data": "/opt/ml/input/data/eval",
+        "save": "./saved",
+        "submission": "./submission"
+    },
+    "dataset": "CustomDataset",
+    "model": "CustomEfficientNet",
+    "criterion": "cross_entropy",
     "wandb": {
         "use": "True",
         "project": "boostcamp-image-classification",

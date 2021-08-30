@@ -1,6 +1,6 @@
 from torchvision import transforms
 
-def get_transfrom():
+def get_transform():
     transform = transforms.Compose([
         #transforms.CenterCrop(350),
         #transforms.Resize((224, 224)), # for ViT
