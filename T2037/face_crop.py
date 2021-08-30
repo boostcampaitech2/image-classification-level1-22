@@ -40,9 +40,10 @@ for paths in pbar:
 
         # boxes 확인
         if len(probs) > 1:
-            print(boxes)
+            # print(boxes)
+            pass
         if not isinstance(boxes, np.ndarray):
-            print("Nope!")
+            # print("Nope!")
             # 직접 crop
             img = img[100:400, 50:350, :]
 

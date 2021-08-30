@@ -19,7 +19,7 @@ import wandb
 from dataset import MaskBaseDataset
 from loss import create_criterion
 
-# wandb.init(project="pstage-image", entity="ththth663")
+
 
 
 def seed_everything(seed):
@@ -96,6 +96,9 @@ def increment_path(path, exist_ok=False):
 def train(data_dir, model_dir, args):
     seed_everything(args.seed)
 
+    if args.wandb:
+        wandb.init(project="pstage-image", entity="ththth663")
+
     save_dir = increment_path(os.path.join(model_dir, args.name))
 
     # -- settings
@@ -157,8 +160,9 @@ def train(data_dir, model_dir, args):
 
     model = torch.nn.DataParallel(model)
 
-    # wandb.watch(model)
-    # wandb.run.name = f"{args.name}"
+    if args.wandb:
+        wandb.watch(model)
+        wandb.run.name = f"{args.name}"
 
     # -- loss & metric
     criterion = create_criterion(args.criterion)  # default: cross_entropy
@@ -213,7 +217,8 @@ def train(data_dir, model_dir, args):
                     "Train/accuracy", train_acc, epoch * len(train_loader) + idx
                 )
 
-                # wandb.log({"train_loss": train_loss, "train_acc": train_acc})
+                if args.wandb:
+                    wandb.log({"train_loss": train_loss, "train_acc": train_acc})
 
                 loss_value = 0
                 matches = 0
@@ -274,12 +279,8 @@ def train(data_dir, model_dir, args):
             logger.add_figure("results", figure, epoch)
             print()
 
-            # wandb.log(
-            #     {
-            #         "valid_loss": val_loss,
-            #         "valid_accuracy": val_acc,
-            #     }
-            # )
+            if args.wandb:
+                wandb.log({"valid_loss": val_loss, "valid_accuracy": val_acc})
 
 
 if __name__ == "__main__":
@@ -332,7 +333,7 @@ if __name__ == "__main__":
         "--model", type=str, default="BaseModel", help="model type (default: BaseModel)"
     )
     parser.add_argument(
-        "--optimizer", type=str, default="SGD", help="optimizer type (default: SGD)"
+        "--optimizer", type=str, default="Adam", help="optimizer type (default: Adam)"
     )
     parser.add_argument(
         "--lr", type=float, default=1e-3, help="learning rate (default: 1e-3)"
@@ -366,6 +367,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--58_to_60", type=int, default=0, help="0 : 그대로, 1 : 57세까지 60으로 취급"
+    )
+    parser.add_argument(
+        "--wandb", type=int, default=0, help="0 : 그대로, 1 : wandb 사용"
     )
 
     # Container environment
