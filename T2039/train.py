@@ -1,3 +1,5 @@
+import argparse
+from parse_config import json_to_config
 import os
 import random
 import numpy as np
@@ -21,18 +23,11 @@ from util.slack_noti import SlackNoti
 from util.custom_loss import F1_Loss
 import wandb
 
-MODEL_PATH = '/opt/ml/code/level1-22/T2039/model/saved'
+MODEL_PATH = '/opt/ml/code/github/model/saved'
 INPUT_DATA_ROOT_PATH = '/opt/ml/input/data'
 DEVICE = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-SEED = 2021
-NUM_CLASSES = 18
-VAL_SPLIT = 0
-BATCH_SIZE = 64
-LEARNING_RATE = 1e-3
-NUM_EPOCH = 10
-EARLY_STOP = 9999
-NUM_ACCUM = 1
-AGE_CAT_TYPE = 1 # 1: 60세 이상을 60세 이상으로 분류, 2: 58,59세도 60세 이상으로 분류
+NUM_CLASSES = 18 # in model
+AGE_CAT_TYPE = 2 # 1: 60세 이상을 60세 이상으로 분류, 2: 58,59세도 60세 이상으로 분류
 
 def seed_everything(seed):
     random.seed(seed)
@@ -40,15 +35,16 @@ def seed_everything(seed):
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)  # if use multi-GPU
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = True
 
-def split_folders(df_train, test_size):
+def split_folders(df_train, config):
     folders = df_train['path'].unique()
-    if test_size == 0:
+    if config['validation_split'] == 0:
         return folders.tolist(), list()
     else:
-        train_folders, val_folders =train_test_split(folders, test_size=test_size, random_state=SEED)
+        train_folders, val_folders =train_test_split(folders, test_size=config['validation_split'], random_state=config['seed'])
         return train_folders.tolist(), val_folders.tolist()
 
 def get_paths_labels(df_train, folders):
@@ -59,24 +55,29 @@ def get_paths_labels(df_train, folders):
     labels = sub_df['class'].tolist()
     return img_paths, labels
 
-def main():
-    seed_everything(SEED)
+def main(config):
+    seed_everything(config['seed'])
 
-    noti = SlackNoti()
+    noti = SlackNoti(config['slack_noti']['url'])
 
     # wandb setting
-    config = {
-        'epochs': NUM_EPOCH, 'batch_size': BATCH_SIZE, 'learning_rate': LEARNING_RATE,
-        'val_split': VAL_SPLIT, 'early_stop': EARLY_STOP, 'gradient_accum': NUM_ACCUM
+    if config['wandb']['use'] == 'True':
+        wandb_config = {
+            'epochs': config['num_epoch'],
+            'batch_size': config['batch_size'],
+            'learning_rate': config['learning_rate'],
+            'val_split': config['validation_split'],
+            'early_stop': config['early_stop'],
+            'gradient_accum': config['gradient_accum']
         }
-    wandb.init(project='boostcamp-image-classification', entity='zgotter', config=config)
-    wandb.run.name = input('wandb experiment name: ')
+        wandb.init(project=config['wandb']['project'], entity=config['wandb']['entity'], config=wandb_config)
+        wandb.run.name = input('wandb experiment name: ')
 
     # load data
     df_train = make_data.TrainData(age_cat_type=AGE_CAT_TYPE).get_data()
 
     # split
-    train_folders, val_folders = split_folders(df_train, VAL_SPLIT)
+    train_folders, val_folders = split_folders(df_train, config)
 
     # paths, labels
     train_paths, train_labels = get_paths_labels(df_train, train_folders)
@@ -93,7 +94,7 @@ def main():
 
     # dataloaders
     datalaoders = {
-        k: DataLoader(datasets[k], batch_size=BATCH_SIZE, shuffle=True, drop_last=True) for k in datasets.keys() if len(datasets[k]) > 0
+        k: DataLoader(datasets[k], batch_size=config['batch_size'], shuffle=True, drop_last=True) for k in datasets.keys() if len(datasets[k]) > 0
     }
 
     # model
@@ -101,7 +102,8 @@ def main():
     #model = CustomVit(NUM_CLASSES)
     model = CustomEfficientNet(NUM_CLASSES)
     model = model.to(DEVICE)
-    wandb.config.update({'model': model.name})
+    if config['wandb']['use'] == 'True':
+        wandb.config.update({'model': model.name})
 
     # Weighted Loss
     #criterion = F1_Loss(NUM_CLASSES).to(DEVICE)    
@@ -110,7 +112,7 @@ def main():
 
     
     # Optimizer
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    optimizer = optim.Adam(model.parameters(), lr=config['learning_rate'])
 
     # Training
     best_f1 = 0.
@@ -119,14 +121,15 @@ def main():
 
     phases = list(datalaoders.keys())
 
-    wandb.watch(model)
+    if config['wandb']['use'] == 'True':
+        wandb.watch(model)
     msg = f"{model.name} train start!!!"
     print(msg)
     noti.send_message(msg)
 
     optimizer.zero_grad() # gradient accumulation
 
-    for epoch in range(1, NUM_EPOCH+1):
+    for epoch in range(1, config['num_epoch']+1):
         is_early_stop = False
         for phase in phases:
             running_loss = 0
@@ -151,7 +154,7 @@ def main():
                     if phase == 'train':
                         loss.backward()
 
-                        if i % NUM_ACCUM == 0: # gradient accumulation
+                        if i % config['gradient_accum'] == 0: # gradient accumulation
                             optimizer.step()
                             optimizer.zero_grad()
 
@@ -164,14 +167,15 @@ def main():
             epoch_acc = running_acc / len(datalaoders[phase].dataset)
             epoch_f1 = running_f1 / n_iter
 
-            msg = f"{phase} | epoch {epoch:03d}/{NUM_EPOCH:03d}, loss: {epoch_loss:.4f}, acc: {epoch_acc:.4f}, f1: {epoch_f1:.4f}"
+            msg = f"{phase} | epoch {epoch:03d}/{config['num_epoch']:03d}, loss: {epoch_loss:.4f}, acc: {epoch_acc:.4f}, f1: {epoch_f1:.4f}"
             print(msg)
             noti.send_message(msg)
-            wandb.log({
-                f'{phase} loss': epoch_loss,
-                f'{phase} acc': epoch_acc,
-                f'{phase} f1': epoch_f1,
-            })
+            if config['wandb']['use'] == 'True':
+                wandb.log({
+                    f'{phase} loss': epoch_loss,
+                    f'{phase} acc': epoch_acc,
+                    f'{phase} f1': epoch_f1,
+                })
 
             # save checkpoint
             if (len(phases) == 2 and phase == 'val') or (len(phases) == 1) :
@@ -190,7 +194,7 @@ def main():
                 else:
                     early_stop_cnt += 1
 
-            if early_stop_cnt == EARLY_STOP:
+            if early_stop_cnt == config['early_stop']:
                 is_early_stop = True
                 break
         
@@ -206,4 +210,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    args = argparse.ArgumentParser(description='Mask Wear Status Classification')
+    args.add_argument('-c', '--config', default=None, type=str, help='config.json file path')
+    config = json_to_config(args)
+    main(config)
