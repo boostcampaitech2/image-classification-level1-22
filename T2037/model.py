@@ -56,13 +56,18 @@ class EfficientNet_self(nn.Module):
             "efficientnet_b0", num_classes=num_classes, pretrained=pretrained
         )
         self.model.classifier = nn.Sequential(
-            nn.Linear(1280, 4048, bias=True), nn.GELU(), nn.Dropout(0.3)
+            nn.Linear(1280, 4048, bias=True),
+            nn.GELU(),
+            nn.Dropout(0.3)
         )
         self.model.classifier_final = nn.Linear(4048, 3, bias=True)
         self.load_state_dict(
             torch.load("/opt/ml/models/EfficientNet_self_supervised.pt")
         )
         self.model.classifier_final = nn.Linear(4048, num_classes, bias=True)
+
+        for param in self.model.parameters():
+            param.requires_grad = True
 
     def forward(self, x):
         x = self.model(x)

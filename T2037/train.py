@@ -19,6 +19,9 @@ import wandb
 from dataset import MaskBaseDataset
 from loss import create_criterion
 
+import argparse
+from loadconfig import json_to_config
+from get_confusion_matrix import GetConfusionMatrix
 
 
 
@@ -93,13 +96,14 @@ def increment_path(path, exist_ok=False):
         return f"{path}{n}"
 
 
-def train(data_dir, model_dir, args):
-    seed_everything(args.seed)
+def train(data_dir, model_dir, config):
+    
+    seed_everything(config["seed"])
 
-    if args.wandb:
+    if config["wandb"]:
         wandb.init(project="pstage-image", entity="ththth663")
 
-    save_dir = increment_path(os.path.join(model_dir, args.name))
+    save_dir = increment_path(os.path.join(model_dir, config["name"]))
 
     # -- settings
     use_cuda = torch.cuda.is_available()
@@ -107,7 +111,7 @@ def train(data_dir, model_dir, args):
 
     # -- dataset
     dataset_module = getattr(
-        import_module("dataset"), args.dataset
+        import_module("dataset"), config["dataset"]
     )  # default: BaseAugmentation
     dataset = dataset_module(
         data_dir=data_dir,
@@ -116,10 +120,10 @@ def train(data_dir, model_dir, args):
 
     # -- augmentation
     transform_module = getattr(
-        import_module("dataset"), args.augmentation
+        import_module("dataset"), config["augmentation"]
     )  # default: BaseAugmentation
     transform = transform_module(
-        resize=args.resize,
+        resize=config["resize"],
         mean=dataset.mean,
         std=dataset.std,
     )
@@ -130,7 +134,7 @@ def train(data_dir, model_dir, args):
 
     train_loader = DataLoader(
         train_set,
-        batch_size=args.batch_size,
+        batch_size=config["batch_size"],
         num_workers=multiprocessing.cpu_count() // 2,
         shuffle=True,
         pin_memory=use_cuda,
@@ -139,7 +143,7 @@ def train(data_dir, model_dir, args):
 
     val_loader = DataLoader(
         val_set,
-        batch_size=args.valid_batch_size,
+        batch_size=config["valid_batch_size"],
         num_workers=0,
         shuffle=False,
         pin_memory=use_cuda,
@@ -147,7 +151,7 @@ def train(data_dir, model_dir, args):
     )
 
     # -- model
-    model_module = getattr(import_module("model"), args.model)  # default: BaseModel
+    model_module = getattr(import_module("model"), config["model"])  # default: BaseModel
     model = model_module(num_classes=num_classes).to(device)
 
     ######
@@ -160,34 +164,56 @@ def train(data_dir, model_dir, args):
 
     model = torch.nn.DataParallel(model)
 
-    if args.wandb:
+    if config["wandb"]:
         wandb.watch(model)
-        wandb.run.name = f"{args.name}"
+        name = config["name"]
+        wandb.run.name = f"{name}"
 
     # -- loss & metric
-    criterion = create_criterion(args.criterion)  # default: cross_entropy
-    opt_module = getattr(import_module("torch.optim"), args.optimizer)  # default: SGD
+    criterion = create_criterion(config["criterion"])  # default: cross_entropy
+    opt_module = getattr(import_module("torch.optim"), config["optimizer"])  # default: Adam
     optimizer = opt_module(
         filter(lambda p: p.requires_grad, model.parameters()),
-        lr=args.lr,
+        lr=config["lr"],
         weight_decay=5e-4,
     )
-    scheduler = StepLR(optimizer, args.lr_decay_step, gamma=0.5)
+    scheduler = StepLR(optimizer, config["lr_decay_step"], gamma=0.5)
 
     # -- logging
     logger = SummaryWriter(log_dir=save_dir)
     with open(os.path.join(save_dir, "config.json"), "w", encoding="utf-8") as f:
-        json.dump(vars(args), f, ensure_ascii=False, indent=4)
+        json.dump(vars(config), f, ensure_ascii=False, indent=4)
 
     best_val_acc = 0
     best_val_loss = np.inf
-    for epoch in range(args.epochs):
+    for epoch in range(config["epochs"]):
+
+        ####### confusion matrix
+        label_cm = GetConfusionMatrix(  # <------------------<<<<
+            save_path='confusion_matrix_image',
+            current_epoch=epoch,  # 구분점을 epoch으로 두었습니다. (반드시 Epoch일 필요 X)
+            n_classes=18,  # 클래스 개수 조정이 가능합니다.
+            # labels=[_ for _ in range(1, 19)]  # (default=None) None인 경우 0 부터 17까지 생성됩니다. 만약 본인 label이 1~18 인 경우 [_ for _ in range(1, 19)] 로 반드시 수정해주세요.
+            tag='example',
+            # image_name='confusion_matrix',  # default file name
+            # 파일명이 f"example.confusion_matrix.epoch{epoch}.png"로 저장됩니다.
+            # only_wrong_label=False,  # wrong label만 표현합니다. (default: True)
+            # count_label=True,  # 수량으로 표현합니다.(default: False)
+            # savefig=False,  # 이미지를 저장합니다. (default: True)
+            # showfig=True,  # for jupyter-notebook (default: False)
+            figsize=(13, 12),  # <- default figsize
+            # dpi=200,  # Matplotlib's default is 150 dpi. (default: 200)
+            vmax=None)  # A max value of colorbar of heatmap
+        ########
+
         # train loop
         model.train()
         loss_value = 0
         matches = 0
         for idx, train_batch in enumerate(train_loader):
             inputs, labels = train_batch
+            if type(inputs) is dict:
+                inputs = inputs["image"]
             inputs = inputs.to(device)
             labels = labels.to(device)
 
@@ -202,12 +228,13 @@ def train(data_dir, model_dir, args):
 
             loss_value += loss.item()
             matches += (preds == labels).sum().item()
-            if (idx + 1) % args.log_interval == 0:
-                train_loss = loss_value / args.log_interval
-                train_acc = matches / args.batch_size / args.log_interval
+            if (idx + 1) % config["log_interval"] == 0:
+                train_loss = loss_value / config["log_interval"]
+                train_acc = matches / config["batch_size"] / config["log_interval"]
                 current_lr = get_lr(optimizer)
+                tmp = config["epochs"]
                 print(
-                    f"Epoch[{epoch}/{args.epochs}]({idx + 1}/{len(train_loader)}) || "
+                    f"Epoch[{epoch}/{tmp}]({idx + 1}/{len(train_loader)}) || "
                     f"training loss {train_loss:4.4} || training accuracy {train_acc:4.2%} || lr {current_lr}"
                 )
                 logger.add_scalar(
@@ -217,7 +244,7 @@ def train(data_dir, model_dir, args):
                     "Train/accuracy", train_acc, epoch * len(train_loader) + idx
                 )
 
-                if args.wandb:
+                if config["wandb"]:
                     wandb.log({"train_loss": train_loss, "train_acc": train_acc})
 
                 loss_value = 0
@@ -234,16 +261,19 @@ def train(data_dir, model_dir, args):
             figure = None
             for val_batch in val_loader:
                 inputs, labels = val_batch
+                if type(inputs) is dict:
+                    inputs = inputs["image"]
                 inputs = inputs.to(device)
                 labels = labels.to(device)
 
                 outs = model(inputs)
                 preds = torch.argmax(outs, dim=-1)
-
                 loss_item = criterion(outs, labels).item()
                 acc_item = (labels == preds).sum().item()
                 val_loss_items.append(loss_item)
                 val_acc_items.append(acc_item)
+                
+                label_cm.collect_batch_preds(labels, preds)
 
                 if figure is None:
                     inputs_np = (
@@ -257,8 +287,10 @@ def train(data_dir, model_dir, args):
                         labels,
                         preds,
                         n=16,
-                        shuffle=args.dataset != "MaskSplitByProfileDataset",
+                        shuffle=config["dataset"] != "MaskSplitByProfileDataset",
                     )
+                    
+            label_cm.epoch_plot() 
 
             val_loss = np.sum(val_loss_items) / len(val_loader)
             val_acc = np.sum(val_acc_items) / len(val_set)
@@ -279,113 +311,19 @@ def train(data_dir, model_dir, args):
             logger.add_figure("results", figure, epoch)
             print()
 
-            if args.wandb:
+            if config["wandb"]:
                 wandb.log({"valid_loss": val_loss, "valid_accuracy": val_acc})
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-
-    from dotenv import load_dotenv
-    import os
-
-    load_dotenv(verbose=True)
-
-    # Data and model checkpoints directories
-    parser.add_argument(
-        "--seed", type=int, default=42, help="random seed (default: 42)"
-    )
-    parser.add_argument(
-        "--epochs", type=int, default=1, help="number of epochs to train (default: 1)"
-    )
-    parser.add_argument(
-        "--dataset",
-        type=str,
-        default="MaskBaseDataset",
-        help="dataset augmentation type (default: MaskBaseDataset)",
-    )
-    parser.add_argument(
-        "--augmentation",
-        type=str,
-        default="BaseAugmentation",
-        help="data augmentation type (default: BaseAugmentation)",
-    )
-    parser.add_argument(
-        "--resize",
-        nargs="+",
-        type=list,
-        default=[224, 224],
-        help="resize size for image when training",
-    )
-    parser.add_argument(
-        "--batch_size",
-        type=int,
-        default=64,
-        help="input batch size for training (default: 64)",
-    )
-    parser.add_argument(
-        "--valid_batch_size",
-        type=int,
-        default=1000,
-        help="input batch size for validing (default: 1000)",
-    )
-    parser.add_argument(
-        "--model", type=str, default="BaseModel", help="model type (default: BaseModel)"
-    )
-    parser.add_argument(
-        "--optimizer", type=str, default="Adam", help="optimizer type (default: Adam)"
-    )
-    parser.add_argument(
-        "--lr", type=float, default=1e-3, help="learning rate (default: 1e-3)"
-    )
-    parser.add_argument(
-        "--val_ratio",
-        type=float,
-        default=0.2,
-        help="ratio for validaton (default: 0.2)",
-    )
-    parser.add_argument(
-        "--criterion",
-        type=str,
-        default="cross_entropy",
-        help="criterion type (default: cross_entropy)",
-    )
-    parser.add_argument(
-        "--lr_decay_step",
-        type=int,
-        default=20,
-        help="learning rate scheduler deacy step (default: 20)",
-    )
-    parser.add_argument(
-        "--log_interval",
-        type=int,
-        default=20,
-        help="how many batches to wait before logging training status",
-    )
-    parser.add_argument(
-        "--name", default="exp", help="model save at {SM_MODEL_DIR}/{name}"
-    )
-    parser.add_argument(
-        "--58_to_60", type=int, default=0, help="0 : 그대로, 1 : 57세까지 60으로 취급"
-    )
-    parser.add_argument(
-        "--wandb", type=int, default=0, help="0 : 그대로, 1 : wandb 사용"
-    )
-
-    # Container environment
-    parser.add_argument(
-        "--data_dir",
-        type=str,
-        default=os.environ.get("SM_CHANNEL_TRAIN", "/opt/ml/data/train/images"),
-    )
-    parser.add_argument(
-        "--model_dir", type=str, default=os.environ.get("SM_MODEL_DIR", "./model")
-    )
+    parser.add_argument('-c', '--config', default="./config.json", type=str, help='config.json path (default: "./config.json")')
+    config = json_to_config(parser)
 
     args = parser.parse_args()
     print(args)
 
-    data_dir = args.data_dir
-    model_dir = args.model_dir
+    data_dir = config["data_dir"]
+    model_dir = config["model_dir"]
 
-    train(data_dir, model_dir, args)
+    train(data_dir, model_dir, config)

@@ -11,6 +11,8 @@ from torch.utils.data import Dataset, Subset, random_split
 from torchvision import transforms
 from torchvision.transforms import *
 import cv2
+import albumentations as A
+import albumentations.pytorch
 
 IMG_EXTENSIONS = [
     ".jpg",
@@ -77,9 +79,9 @@ class CustomAugmentation:
     def __init__(self, resize, mean, std, **args):
         self.transform = transforms.Compose(
             [
-                transforms.CenterCrop((320, 256)),
                 transforms.Resize(resize, Image.BILINEAR),
                 transforms.ColorJitter(0.1, 0.1, 0.1, 0.1),
+                transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=mean, std=std),
                 AddGaussianNoise(),
@@ -87,7 +89,31 @@ class CustomAugmentation:
         )
 
     def __call__(self, image):
+        
         return self.transform(image)
+
+
+class Albumentation:
+    def __init__(self, resize, mean, std):
+        self.transform = A.Compose([
+            A.Resize(resize[0],resize[1], Image.BILINEAR),
+            A.OneOf([
+                    A.MotionBlur(p=1),
+                    A.OpticalDistortion(p=1),
+                    A.GaussNoise(p=1)  
+            ]),
+            A.Cutout(),
+            A.HorizontalFlip(),
+            A.Normalize(mean=mean, std=std),
+            A.pytorch.ToTensorV2()
+        ])
+
+    def __call__(self, image):
+        image = np.asarray(image) # PiL to cv2 / cv2는 rbg, PiL은 rgb로 불러온다는데 상관 X
+        if image.shape[-1] == 4:
+            image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB) # 가끔가다 4차원짜리 이미지가 보임
+        image = self.transform(image=image)
+        return image
 
 
 class MaskLabels(int, Enum):
@@ -129,6 +155,31 @@ class AgeLabels(int, Enum):
             return cls.YOUNG
         elif value < 60:
             return cls.MIDDLE
+        else:
+            return cls.OLD
+
+class AgeLabels_Smooth(int, Enum):
+    YOUNG = 0
+    YOUNG_MIDDLE = 1
+    MIDDLE = 2
+    MIDDLE_OLD = 3
+    OLD = 4
+
+    @classmethod
+    def from_number(cls, value: str) -> int:
+        try:
+            value = int(value)
+        except Exception:
+            raise ValueError(f"Age value should be numeric, {value}")
+
+        if value < 25:
+            return cls.YOUNG
+        elif value < 35:
+            return cls.YOUNG_MIDDLE
+        elif value < 55:
+            return cls.MIDDLE
+        elif value < 60:
+            return cls.MIDDLE_OLD
         else:
             return cls.OLD
 
@@ -218,7 +269,7 @@ class MaskBaseDataset(Dataset):
         assert self.transform is not None, ".set_tranform 메소드를 이용하여 transform 을 주입해주세요"
 
         image = self.read_image(index)
-        image = image.convert(mode="RGB")
+        # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         mask_label = self.get_mask_label(index)
         gender_label = self.get_gender_label(index)
         age_label = self.get_age_label(index)
@@ -241,12 +292,13 @@ class MaskBaseDataset(Dataset):
 
     def read_image(self, index):
         image_path = self.image_paths[index]
+        # return cv2.imread(image_path)
         return Image.open(image_path)
 
     def convert_three_channel(self, image):
         if len(image.shape) > 2 and image.shape[2] == 4:
             # convert the image from RGBA2RGB
-            image = cv2.cvtColor(image, cv2.COLOR_BGRA2BGR)
+            image = cv2.cvtColor(image, cv2.COLOR_rgba2rgb)
 
     @staticmethod
     def encode_multi_class(mask_label, gender_label, age_label) -> int:
@@ -370,3 +422,8 @@ class TestDataset(Dataset):
 
     def __len__(self):
         return len(self.img_paths)
+
+
+if __name__ == "__main__":
+
+    print(AgeLabels_Smooth.from_number(30))

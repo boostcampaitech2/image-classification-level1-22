@@ -1,3 +1,4 @@
 model/
-__pycashe__/
+__pycache__/
 wandb/
+confusion_matrix_image/

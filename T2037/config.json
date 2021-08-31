@@ -1,0 +1,23 @@
+{
+  "seed": 42,
+  "epochs": 20,
+  "dataset": "MaskBaseDataset",
+  "augmentation": "Albumentation",
+  "resize": [
+    300,
+    300
+  ],
+  "batch_size": 64,
+  "valid_batch_size": 64,
+  "model": "EfficientNet",
+  "optimizer": "Adam",
+  "lr": 1e-3,
+  "val_ratio": 0.2,
+  "criterion": "cross_entropy",
+  "lr_decay_step": 20,
+  "log_interval": 20,
+  "name": "Album_crossentropy_facecrop_labelfix",
+  "wandb": 1,
+  "data_dir": "/opt/ml/data/train/new_imgs",
+  "model_dir": "/opt/ml/code/image-classification-level1-22/T2037/model"
+}
