@@ -43,13 +43,18 @@ def get_local_time(date=True):
     tz = pytz.timezone('Asia/Seoul') 
     dt = datetime.now(tz)
     if date:
-        return dt.strftime("%D %H:%M:%S")
-    else:
-        return dt.strftime("%H:%M:%S")
+        return dt.strftime("%y-%m-%d_%H:%M:%S")
 
-def get_loss_weight(csv_file, weight_schemes = "ENS", beta = 0.99):
-    label_count = csv_file["label"].value_counts()
-    num_classes = len(label_count)
+def get_label_count(dataset, num_classes):
+    labels = torch.zeros(num_classes, dtype=torch.long)
+
+    for _, target in dataset:
+        labels[target] += 1
+
+    return labels
+
+def get_loss_weight(class_list, weight_schemes = "ENS", beta = 0.99, num_classes=18):
+    label_count = class_list
     
     if weight_schemes == "INS":
         loss_weight = 1 / label_count
@@ -66,8 +71,24 @@ def get_loss_weight(csv_file, weight_schemes = "ENS", beta = 0.99):
         label_max = label_count.max()
         loss_weight = label_max / label_count
 
-    loss_weight = loss_weight.sort_index()
-    loss_weight = torch.tensor(loss_weight.values).float()
+    loss_weight = torch.tensor(loss_weight).float()
 
     return loss_weight
 
+def rand_bbox(size, lam):
+    W = size[2]
+    H = size[3]
+    cut_rat = np.sqrt(1. - lam)
+    cut_w = np.int(W * cut_rat)
+    cut_h = np.int(H * cut_rat)
+
+    # uniform
+    cx = np.random.randint(W)
+    cy = np.random.randint(H)
+
+    bbx1 = np.clip(cx - cut_w // 2, 0, W)
+    bby1 = np.clip(cy - cut_h // 2, 0, H)
+    bbx2 = np.clip(cx + cut_w // 2, 0, W)
+    bby2 = np.clip(cy + cut_h // 2, 0, H)
+
+    return bbx1, bby1, bbx2, bby2
