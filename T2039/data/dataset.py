@@ -1,8 +1,65 @@
 import os
+from tqdm import tqdm
+import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+import torch
 from torch.utils.data import Dataset, Subset
+from torchvision import transforms
+from torchvision.transforms import *
 from PIL import Image
+
+class SimpleAugmentation:
+    def __init__(self, **args):
+        self.transform = transforms.Compose([
+            ToTensor()
+        ])
+
+    def __call__(self, image):
+        return self.transform(image)
+
+class BaseAugmentation:
+    def __init__(self, resize, mean, std, **args):
+        self.transform = transforms.Compose([
+            Resize(resize, Image.BILINEAR),
+            ToTensor(),
+            Normalize(mean=mean, std=std),
+        ])
+
+    def __call__(self, image):
+        return self.transform(image)
+
+class CustomAugmentation:
+    def __init__(self, resize, mean, std, **args):
+        self.transform = transforms.Compose([
+            CenterCrop((320, 256)),
+            Resize(resize, Image.BILINEAR),
+            ColorJitter(0.1, 0.1, 0.1, 0.1),
+            ToTensor(),
+            Normalize(mean=mean, std=std),
+            AddGaussianNoise()
+        ])
+
+    def __call__(self, image):
+        return self.transform(image)
+
+class AddGaussianNoise(object):
+    """
+        transform 에 없는 기능들은 이런식으로 __init__, __call__, __repr__ 부분을
+        직접 구현하여 사용할 수 있습니다.
+    """
+
+    def __init__(self, mean=0., std=1.):
+        self.std = std
+        self.mean = mean
+
+    def __call__(self, tensor):
+        return tensor + torch.randn(tensor.size()) * self.std + self.mean
+
+    def __repr__(self):
+        return self.__class__.__name__ + '(mean={0}, std={1})'.format(self.mean, self.std)
+
+####################################
 
 def get_mask(mask):
     if 'incorrect' in mask:
@@ -15,7 +72,7 @@ def get_mask(mask):
 def get_age(age):
     if age < 30:
         return 'young'
-    elif age < 60:
+    elif age < 58: # 58, 59 세도 60세 이상으로 분류
         return 'middle'
     else:
         return 'old'
@@ -35,17 +92,22 @@ class CustomDataset(Dataset):
     labels = []
     indices = dict(train=[], val=[])
 
-    def __init__(self, data_dir, transform, val_ratio, seed):
+    def __init__(self, data_dir, val_ratio, seed, mean=None, std=None):
         self.data_dir = data_dir
-        self.mode = 'train' if 'train' in self.data_dir else 'eval'
-        self.transform = transform
         self.val_ratio = val_ratio
         self.seed = seed
+        self.mean = mean
+        self.std = std
+
+        self.mode = 'train' if 'train' in self.data_dir else 'eval'
+        self.transform = None
 
         if self.mode == 'train':
             self.train_setup()
         elif self.mode == 'eval':
             self.eval_setup()
+
+        self.calc_statistics()
 
     def train_setup(self):
         self.df_train = pd.read_csv(os.path.join(self.data_dir, 'train.csv'))
@@ -82,6 +144,22 @@ class CustomDataset(Dataset):
         for _, row in self.df_eval.iterrows():
             self.image_paths.append(os.path.join(self.data_dir, 'images', row['ImageID']))
 
+    def calc_statistics(self):
+        has_statistics = self.mean is not None and self.std is not None
+        if not has_statistics:
+            print("[Warning] Calculating statistics... It can take a long time depending on your CPU machine")
+            sums = []
+            squared = []
+            for image_path in tqdm(self.image_paths):
+                image = np.array(Image.open(image_path)).astype(np.int32)
+                sums.append(image.mean(axis=(0, 1)))
+                squared.append((image ** 2).mean(axis=(0, 1)))
+
+            self.mean = np.mean(sums, axis=0) / 255
+            self.std = (np.mean(squared, axis=0) - self.mean ** 2) ** 0.5 / 255
+
+    def set_transform(self, transform):
+        self.transform = transform
 
     def __len__(self):
         return len(self.image_paths)

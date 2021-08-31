@@ -4,15 +4,13 @@ from importlib import import_module
 import os
 # import random
 # import numpy as np
-
 from tqdm import tqdm
 import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from util.custom_util import get_now_str
 from sklearn.metrics import f1_score
 from metric.custom_loss import create_criterion
-from util.transform import get_transform
+from util.custom_util import get_now_str
 from util.slack_noti import SlackNoti
 import wandb
 
@@ -44,19 +42,35 @@ def main(config):
             'batch_size': config['batch_size'],
             'learning_rate': config['learning_rate'],
             'val_ratio': config['val_ratio'],
+            'loss': config['criterion'],
             'early_stop': config['early_stop']
         }
-        wandb.init(project=config['wandb']['project'], entity=config['wandb']['entity'], config=wandb_config)
+        wandb.init(
+            project=config['wandb']['project'],
+            entity=config['wandb']['entity'],
+            config=wandb_config
+        )
         wandb.run.name = input('wandb experiment name: ')
 
     # dataset
     dataset_module = getattr(import_module('data.dataset'), config['dataset'])
     dataset = dataset_module(
-        data_dir = config['path']['train_data'],
-        transform = get_transform(),
-        val_ratio = config['val_ratio'],
-        seed = config['seed']
+        data_dir=config['path']['train_data'],
+        val_ratio=config['val_ratio'],
+        seed = config['seed'],
+        mean=(0.560, 0.524, 0.501),
+        std=(0.617, 0.587, 0.568)        
     )
+
+    # augmentation
+    transform_module = getattr(import_module('data.dataset'), config['augmentation']['train'])
+    transform = transform_module(
+        #resize=config['augmentation']['resize'],
+        #mean=dataset.mean,
+        #std=dataset.std
+    )
+
+    dataset.set_transform(transform)
 
     train_dataset, val_dataset = dataset.split_dataset()
 
@@ -83,9 +97,14 @@ def main(config):
     if config['wandb']['use'] == 'True':
         wandb.config.update({'model': model.name})
 
-    # Weighted Loss
+    # loss
     weight_age_over_60 = torch.tensor([1., 1., 5.] * 6).to(device)
+
+    # 1) cross entropy loss or Focal loss
     criterion = create_criterion(config['criterion'], weight=weight_age_over_60)
+
+    # 2) label smoothing loss
+    #criterion = create_criterion(config['criterion'], classes=dataset.num_classes, smoothing=0.5)
 
     # Optimizer
     optimizer = optim.Adam(model.parameters(), lr=config['learning_rate'])
