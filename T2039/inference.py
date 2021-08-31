@@ -8,7 +8,6 @@ from tqdm import tqdm
 from util.custom_util import get_now_str
 import torch
 from torch.utils.data import DataLoader
-from util.transform import get_transform
 from util.slack_noti import SlackNoti
 
 def main(config):
@@ -20,10 +19,21 @@ def main(config):
     dataset_module = getattr(import_module('data.dataset'), config['dataset'])
     dataset = dataset_module(
         data_dir = config['path']['eval_data'],
-        transform = get_transform(),
         val_ratio = 0,
-        seed = config['seed']
+        seed = config['seed'],
+        mean=(0.532, 0.476, 0.448),
+        std=(0.593, 0.544, 0.519)
     )
+
+    # augmentation
+    transform_module = getattr(import_module('data.dataset'), config['augmentation']['submission'])
+    transform = transform_module(
+        #resize=config['augmentation']['resize'],
+        #mean=dataset.mean,
+        #std=dataset.std
+    )
+
+    dataset.set_transform(transform)    
 
     # dataset & dataloader
     dataloader = DataLoader(dataset, batch_size=config['batch_size'], shuffle=False)
