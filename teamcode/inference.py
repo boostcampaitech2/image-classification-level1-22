@@ -64,6 +64,7 @@ def main(config):
     df_info.to_csv(os.path.join(config['path']['submission'], 
                                 f"submission_{config['submission_no']}_{get_now_str()}.csv"), 
                    index=False)
+                   
     msg = 'inference finished'
     print(msg)
     if config['slack_noti']['use'] == 'True':
