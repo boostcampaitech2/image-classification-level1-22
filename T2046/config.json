@@ -1,0 +1,31 @@
+{
+    "seed": 2021,
+    "submission_no": "no",
+    "num_epoch": 2,
+    "batch_size": 64,
+    "val_ratio": 0.1,   
+    "learning_rate": 0.001,
+    "early_stop": 9999,
+    "dataset": "CustomDataset",
+    "augmentation": {
+        "train": "SimpleAugmentation",
+        "submission": "SimpleAugmentation"
+    },
+    "model": "CustomEfficientNet",
+    "criterion": "cross_entropy",
+    "path": {
+        "train_data": "/opt/ml/input/data/train",
+        "eval_data": "/opt/ml/input/data/eval",
+        "save": "./saved",
+        "submission": "./submission"
+    },
+    "wandb": {
+        "use": "False",
+        "project": "boostcamp-image-classification",
+        "entity": "zgotter"
+    },
+    "slack_noti": {
+        "use": "False",
+        "url": "https://hooks.slack.com/services/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"
+    }    
+}
