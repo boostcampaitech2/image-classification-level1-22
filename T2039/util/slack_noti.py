@@ -4,8 +4,8 @@ import random
 import requests
 
 class SlackNoti:
-    def __init__(self):
-        self.url = 'https://hooks.slack.com/services/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'
+    def __init__(self, url):
+        self.url = url
         self.title = (f"New Incoming Message :zap:")
         self.slack_data = {
             "username": "NotificationBot",
