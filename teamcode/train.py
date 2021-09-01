@@ -121,6 +121,7 @@ def main(config):
 
     for epoch in range(1, config['num_epoch']+1):
 
+        check_f1 = 0.
         ############### train ###############
         running_loss = 0
         running_acc = 0
@@ -128,8 +129,7 @@ def main(config):
 
         model.train()
 
-        n_iter = 0
-        for i, (images, labels) in enumerate(tqdm(train_dataloader)):
+        for images, labels in tqdm(train_dataloader):
             images = images.to(device)
             labels = labels.to(device) 
 
@@ -143,11 +143,11 @@ def main(config):
             running_loss += loss.item() * images.size(0)
             running_acc += torch.sum(preds == labels.data)
             running_f1 += f1_score(labels.cpu().numpy(), preds.cpu().numpy(), average='macro')
-            n_iter += 1            
 
         train_loss = running_loss / len(train_dataloader.dataset)
         train_acc = running_acc / len(train_dataloader.dataset)
-        train_f1 = running_f1 / n_iter
+        train_f1 = running_f1 / len(train_dataloader)
+        check_f1 = train_f1
 
         msg = f"train | epoch {epoch:03d}/{config['num_epoch']:03d}, loss: {train_loss:.4f}, acc: {train_acc:.4f}, f1: {train_f1:.4f}"
         print(msg)
@@ -161,49 +161,47 @@ def main(config):
             })
 
         ############### eval ###############
-        if val_dataloader == None: continue
+        if val_dataloader != None:
+            with torch.no_grad():
+                running_loss = 0
+                running_acc = 0
+                running_f1 = 0
 
-        with torch.no_grad():
-            running_loss = 0
-            running_acc = 0
-            running_f1 = 0
+                model.eval()
 
-            model.eval()
+                for images, labels in tqdm(val_dataloader):
+                    images = images.to(device)
+                    labels = labels.to(device) 
 
-            n_iter = 0
-            for i, (images, labels) in enumerate(tqdm(val_dataloader)):
-                images = images.to(device)
-                labels = labels.to(device) 
+                    logits = model(images)
+                    _, preds = torch.max(logits, 1)
+                    loss = criterion(logits, labels)
 
-                logits = model(images)
-                _, preds = torch.max(logits, 1)
-                loss = criterion(logits, labels)
+                    running_loss += loss.item() * images.size(0)
+                    running_acc += torch.sum(preds == labels.data)
+                    running_f1 += f1_score(labels.cpu().numpy(), preds.cpu().numpy(), average='macro')
 
-                running_loss += loss.item() * images.size(0)
-                running_acc += torch.sum(preds == labels.data)
-                running_f1 += f1_score(labels.cpu().numpy(), preds.cpu().numpy(), average='macro')
-                n_iter += 1            
+                val_loss = running_loss / len(val_dataloader.dataset)
+                val_acc = running_acc / len(val_dataloader.dataset)
+                val_f1 = running_f1 / len(val_dataloader)
+                check_f1 = val_f1
 
-            val_loss = running_loss / len(val_dataloader.dataset)
-            val_acc = running_acc / len(val_dataloader.dataset)
-            val_f1 = running_f1 / n_iter
-
-            msg = f"val | epoch {epoch:03d}/{config['num_epoch']:03d}, loss: {val_loss:.4f}, acc: {val_acc:.4f}, f1: {val_f1:.4f}"
-            print(msg)
-            if config['slack_noti']['use'] == 'True':
-                noti.send_message(msg)
-            if config['wandb']['use'] == 'True':
-                wandb.log({
-                    f'val loss': val_loss,
-                    f'val acc': val_acc,
-                    f'val f1': val_f1,
-                })
+                msg = f"val | epoch {epoch:03d}/{config['num_epoch']:03d}, loss: {val_loss:.4f}, acc: {val_acc:.4f}, f1: {val_f1:.4f}"
+                print(msg)
+                if config['slack_noti']['use'] == 'True':
+                    noti.send_message(msg)
+                if config['wandb']['use'] == 'True':
+                    wandb.log({
+                        f'val loss': val_loss,
+                        f'val acc': val_acc,
+                        f'val f1': val_f1,
+                    })
 
         ############### save checkpoint ###############
-        if best_f1 < val_f1:
+        if best_f1 < check_f1:
             early_stop_cnt = 0
             best_epoch = epoch
-            best_f1 = val_f1
+            best_f1 = check_f1
 
             remove_file_path = os.path.join(config['path']['save'], old_file)
             if os.path.isfile(remove_file_path):
@@ -223,7 +221,8 @@ def main(config):
         if early_stop_cnt == config['early_stop']:
             msg = f"early stopped"
             print(msg)
-            noti.send_message(msg)
+            if config['slack_noti']['use'] == 'True':
+                noti.send_message(msg)
             break            
 
     msg = f"best f1 is {best_f1:.4f} in epoch {best_epoch:03d}"
