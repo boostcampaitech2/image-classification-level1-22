@@ -7,7 +7,7 @@ import pandas as pd
 from torch.utils.data import DataLoader, random_split
 
 from model import *
-from submit import *
+from inference import *
 from data.dataset import *
 from train import *
 
@@ -47,7 +47,7 @@ if __name__ == "__main__":
   model_path = './checkpoint/'+model.model_name+'_'+get_local_time(date=False)+'_checkpoint.pt'
 
   # Hyperparameters
-  LEARNING_RATE = 0.001
+  LEARNING_RATE = 0.0001
 
   optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
   # base_optimizer = torch.optim.SGD

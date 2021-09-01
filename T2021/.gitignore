@@ -3,3 +3,6 @@ __pycache__/
 checkpoint/
 test.py
 experiment.py
+train_sample.py
+data_sample.py
+*.jpg
