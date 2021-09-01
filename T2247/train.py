@@ -13,15 +13,20 @@ import os
 import wandb
 import dataset_
 from sklearn.metrics import f1_score
-
+from datetime import datetime
+import pytz
+import multiprocessing as mp
+#from facenet_pytorch import MTCNN
 
 N_SPLITS = 5
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 NUM_WORKERS = 3
 DEVICE = torch.device('cuda')
-EPOCHS = 8
+EPOCHS = 5
 CLASSES = 18
 LEARNING_RATE = 0.001
+KOREATIME = pytz.timezone('Asia/Seoul')
+
 
 def loss_batch(loss_func, x, y, output, opt=None):
     loss = loss_func(output, y)
@@ -41,18 +46,24 @@ def loss_epoch(model_, loss_func, d_loader, opt=None):
     loss = 0.0
     metric = 0.0
     len_data = len(d_loader.dataset)
-
+    #print(len(d_loader))
+    cnt = 0
     for xb, yb in d_loader:
+        #print(f'{cnt+1}번째, yb: {yb}')
+        #print(xb.shape)
         xb = xb.type(torch.float).to(DEVICE)
         yb = yb.to(DEVICE)
         yb_h = model_(xb)
 
         loss_b, metric_b = loss_batch(loss_func, xb, yb, yb_h, opt)
+        #print(loss_b)
         loss += loss_b
+        cnt += 1
         if metric_b is not None:
             metric += metric_b
     loss /= len_data
     metric /= len_data
+    #print(f'loss:{loss}, metric:{metric}')
     return loss, metric
 
 def createDir(directory):
@@ -64,7 +75,9 @@ def createDir(directory):
 
 
 if __name__ == '__main__':
-    path_ = '/opt/ml/T2247/'
+    mp.set_start_method('spawn')
+    print(f'Start Time : {datetime.now(KOREATIME).strftime("%H:%M:%S")}')
+    path_ = '/opt/ml/T2247/models/'
     test_dir = '/opt/ml/input/data/eval'
     wandb.init(project='darknet53', entity='kkami')
 
@@ -101,16 +114,16 @@ if __name__ == '__main__':
             accuracy = 100 * val_metric
             wandb.log({'accuracy':accuracy})
             print(f'epoch: {epoch}, train loss: {train_loss:0.6f}, val loss: {val_loss:0.6f}, accuracy: {accuracy:0.2f}, time: {(time.time()-start_time)/60} min')
-
+            print(f'.... TIME .... -> {datetime.now(KOREATIME).strftime("%H:%M:%S")}')
             if val_loss < best_loss:
-                print(val_loss)
+                #print(val_loss)
                 bi = i
                 bepoch = epoch
                 best_loss = val_loss
                 best_model_wts = copy.deepcopy(model_.state_dict())
-                pth_name = f'Fold{bi}_epoch{bepoch}_.pt'
+                pth_name = f'facenet_stratifiedKFold{bi}_epoch{bepoch}_.pt'
                 #os.path.join
-                print(path_ + pth_name)
+                #print(path_ + pth_name)
                 torch.save(model_.state_dict(), path_ + pth_name)
     
     subm_dataset = dataset_.Submission_Dataset(test_dir)
@@ -128,7 +141,7 @@ if __name__ == '__main__':
             all_prediction.extend(pred.cpu().numpy())
     subm_append['ans'] = all_prediction
 
-    subm_append.to_csv(os.path.join(test_dir, 'test_darknet53_subm01.csv'), index=False)
+    subm_append.to_csv(os.path.join(test_dir, 'test_darknet53_subm02.csv'), index=False)
 
 
 
