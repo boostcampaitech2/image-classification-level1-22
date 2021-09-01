@@ -1,0 +1,54 @@
+
+Namespace(augmentation='BaseAugmentation', batch_size=64, criterion='cross_entropy', data_dir='/opt/ml/data/train/images', dataset='MaskBaseDataset', epochs=10, log_interval=20, lr=0.001, lr_decay_step=20, model='EfficientNet_self', model_dir='./model', name='EfficientNet_self_supervised', optimizer='Adam', resize=[224, 224], seed=42, val_ratio=0.2, valid_batch_size=1000, **{'58_to_60': 0})
+Epoch[0/10](20/236) || training loss 8.094 || training accuracy 21.02% || lr 0.001
+Epoch[0/10](40/236) || training loss 5.895 || training accuracy 23.36% || lr 0.001
+Epoch[0/10](60/236) || training loss 4.943 || training accuracy 34.38% || lr 0.001
+Epoch[0/10](80/236) || training loss 4.706 || training accuracy 38.44% || lr 0.001
+Epoch[0/10](100/236) || training loss 4.606 || training accuracy 43.28% || lr 0.001
+Epoch[0/10](120/236) || training loss 4.236 || training accuracy 47.03% || lr 0.001
+Epoch[0/10](140/236) || training loss 4.095 || training accuracy 49.92% || lr 0.001
+Epoch[0/10](160/236) || training loss 4.192 || training accuracy 49.84% || lr 0.001
+Epoch[0/10](180/236) || training loss 3.897 || training accuracy 52.34% || lr 0.001
+Epoch[0/10](200/236) || training loss 4.078 || training accuracy 50.55% || lr 0.001
+Epoch[0/10](220/236) || training loss 3.938 || training accuracy 52.03% || lr 0.001
+Calculating validation results...
+New best model for val accuracy : 57.70%! saving the best model..
+[Val] acc : 57.70%, loss:  3.3 || best acc : 57.70%, best loss:  3.3
+Epoch[1/10](20/236) || training loss 4.066 || training accuracy 50.78% || lr 0.001
+Epoch[1/10](40/236) || training loss 4.075 || training accuracy 50.62% || lr 0.001
+Epoch[1/10](60/236) || training loss 3.873 || training accuracy 52.89% || lr 0.001
+Epoch[1/10](80/236) || training loss 3.801 || training accuracy 53.75% || lr 0.001
+Epoch[1/10](100/236) || training loss 3.665 || training accuracy 55.39% || lr 0.001
+Epoch[1/10](120/236) || training loss 3.98 || training accuracy 51.48% || lr 0.001
+Epoch[1/10](140/236) || training loss 4.088 || training accuracy 50.55% || lr 0.001
+Epoch[1/10](160/236) || training loss 3.851 || training accuracy 53.36% || lr 0.001
+Epoch[1/10](180/236) || training loss 3.794 || training accuracy 54.37% || lr 0.001
+Epoch[1/10](200/236) || training loss 3.963 || training accuracy 51.48% || lr 0.001
+Epoch[1/10](220/236) || training loss 3.798 || training accuracy 54.14% || lr 0.001
+Calculating validation results...
+Traceback (most recent call last):
+  File "train.py", line 378, in <module>
+    train(data_dir, model_dir, args)
+  File "train.py", line 221, in train
+    for val_batch in val_loader:
+  File "/opt/conda/lib/python3.8/site-packages/torch/utils/data/dataloader.py", line 435, in __next__
+    data = self._next_data()
+  File "/opt/conda/lib/python3.8/site-packages/torch/utils/data/dataloader.py", line 475, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+  File "/opt/conda/lib/python3.8/site-packages/torch/utils/data/_utils/fetch.py", line 44, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/opt/conda/lib/python3.8/site-packages/torch/utils/data/_utils/fetch.py", line 44, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/opt/conda/lib/python3.8/site-packages/torch/utils/data/dataset.py", line 272, in __getitem__
+    return self.dataset[self.indices[idx]]
+  File "/opt/ml/code/image-classification-level1-22/T2037/dataset.py", line 227, in __getitem__
+    image_transform = self.transform(image)
+  File "/opt/ml/code/image-classification-level1-22/T2037/dataset.py", line 44, in __call__
+    return self.transform(image)
+  File "/opt/conda/lib/python3.8/site-packages/torchvision/transforms/transforms.py", line 67, in __call__
+    img = t(img)
+  File "/opt/conda/lib/python3.8/site-packages/torchvision/transforms/transforms.py", line 104, in __call__
+    return F.to_tensor(pic)
+  File "/opt/conda/lib/python3.8/site-packages/torchvision/transforms/functional.py", line 96, in to_tensor
+    img = torch.ByteTensor(torch.ByteStorage.from_buffer(pic.tobytes()))
+KeyboardInterrupt
