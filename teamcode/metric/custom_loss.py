@@ -39,6 +39,33 @@ class LabelSmoothingLoss(nn.Module):
         return torch.mean(torch.sum(-true_dist * pred, dim=self.dim))
 
 
+class CustomLabelSmoothingLoss(nn.Module):
+    def __init__(self, classes=18, smoothing=0.1, dim=-1):
+        super(CustomLabelSmoothingLoss, self).__init__()
+        self.confidence = 1.0 - smoothing
+        self.smoothing = smoothing
+        self.cls = classes
+        self.dim = dim
+        self.young = [0,3,6,9,12,15]
+        self.middle = [1,4,7,10,13,16]
+        self.old = [2,5,8,11,14,17]
+
+    def forward(self, pred, target):
+        pred = pred.log_softmax(dim=self.dim)
+        with torch.no_grad():
+            true_dist = torch.zeros_like(pred)
+            for idx, t in enumerate(target):
+                if t in self.young:
+                    true_dist[idx] = torch.tensor([self.smoothing, 0, 0, self.smoothing, 0, 0, self.smoothing, 0, 0, self.smoothing, 0, 0, self.smoothing, 0, 0, self.smoothing, 0, 0])
+                elif t in self.middle:
+                    true_dist[idx] = torch.tensor([0, self.smoothing, 0, 0, self.smoothing, 0, 0, self.smoothing, 0, 0, self.smoothing, 0, 0, self.smoothing, 0, 0, self.smoothing, 0])
+                else:
+                    true_dist[idx] = torch.tensor([0, 0, self.smoothing, 0, 0, self.smoothing, 0, 0, self.smoothing, 0, 0, self.smoothing, 0, 0, self.smoothing, 0, 0, self.smoothing])
+
+            true_dist.scatter_(1, target.data.unsqueeze(1), self.confidence)
+        return torch.mean(torch.sum(-true_dist * pred, dim=self.dim))
+
+
 # https://gist.github.com/SuperShinyEyes/dcc68a08ff8b615442e3bc6a9b55a354
 class F1Loss(nn.Module):
     def __init__(self, classes=3, epsilon=1e-7):
@@ -68,6 +95,7 @@ _criterion_entrypoints = {
     'cross_entropy': nn.CrossEntropyLoss,
     'focal': FocalLoss,
     'label_smoothing': LabelSmoothingLoss,
+    'custom_label_smoothing': CustomLabelSmoothingLoss,
     'f1': F1Loss
 }
 
