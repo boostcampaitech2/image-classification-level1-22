@@ -15,7 +15,7 @@
 │
 ├──  util
 │    └── custom_util.py  - file that contains customized util functions
-│    └── install package.ipynb  - file that contains customized util functions
+│    └── install package.ipynb  - ipynb file to install requirements
 │    └── slack_noti.py  - contains class for slack notification
 │   
 ├──  config.json - config file for training, submission, slack and wandb
@@ -26,6 +26,9 @@
 │
 ├── train.py - file to train model
 ```
+
+## Prepare Data
+Make sure your local environment has '/opt/ml/input/' file or else change file path in config.json
 
 ## Training
 To train models, run following command.
