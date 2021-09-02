@@ -1,9 +1,28 @@
 
 from torch.nn import functional as F
-from torch.nn import _reduction as _Reduction
-from torch.nn.modules.module import Module
 import torch.nn as nn
 import torch
+from torch.nn import _reduction as _Reduction
+from torch import Tensor
+from typing import Callable, Optional
+
+class FocalLoss(nn.Module):
+    def __init__(self, weight=None,
+                 gamma=2., reduction='mean'):
+        nn.Module.__init__(self)
+        self.weight = weight
+        self.gamma = gamma
+        self.reduction = reduction
+
+    def forward(self, input_tensor, target_tensor):
+        log_prob = F.log_softmax(input_tensor, dim=-1)
+        prob = torch.exp(log_prob)
+        return F.nll_loss(
+            ((1 - prob) ** self.gamma) * log_prob,
+            target_tensor,
+            weight=self.weight,
+            reduction=self.reduction
+        )
 
 class CustomLoss(nn.Module):
     def __init__(self, classes, epsilon= 1e-7):
@@ -20,12 +39,10 @@ class CustomLoss(nn.Module):
         CE= torch.nn.CrossEntropyLoss()
 
         CE_loss= CE(y_pred, y_true)
-        Focal_loss= Focal(y_pred, y_true)
 
         y_true = F.one_hot(y_true, self.classes).to(torch.float32)
         y_pred = F.softmax(y_pred, dim=1)
 
-        # print(y_true.shape, y_pred.shape)
         tp = (y_true * y_pred).sum(dim=0).to(torch.float32)
         tn = ((1 - y_true) * (1 - y_pred)).sum(dim=0).to(torch.float32)
         fp = ((1 - y_true) * y_pred).sum(dim=0).to(torch.float32)
@@ -37,10 +54,4 @@ class CustomLoss(nn.Module):
         f1 = 2* (precision*recall) / (precision + recall + self.epsilon)
         f1 = f1.clamp(min=self.epsilon, max=1-self.epsilon)
 
-        return (1 - f1.mean()) + CE_loss 
-
-
-if __name__== '__main__':
-
-    loss= CustomLoss(18)
-    loss.forward(torch.tensor([[0.01*i for i in range(1, 19)]for j in range(3)]), torch.tensor([1, 15, 17]))
+        return (1 - f1.mean()) + CE_loss
