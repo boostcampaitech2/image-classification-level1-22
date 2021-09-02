@@ -35,3 +35,25 @@ class CustomVit(nn.Module):
 
     def forward(self, x):
         return self.model(x)
+
+class CustomEfficientNetWithClassifier(nn.Module):
+    def __init__(self, num_classes):
+        super().__init__()
+        self.model_name = 'efficientnet-b0'
+        self.num_classes = num_classes
+
+        self.model = timm.create_model('efficientnet_b0', num_classes=num_classes, pretrained=True)
+
+        self.classifier = nn.Sequential(
+            nn.Linear(1000, 256),
+            nn.Dropout(p=0.2),
+            nn.ReLU(),
+            nn.Linear(256, self.num_classes),
+        )
+        
+    def forward(self, x):
+        x = self.model(x)
+        x = x.view(x.size(0), -1)
+        x = self.classifier(x)
+        
+        return x
