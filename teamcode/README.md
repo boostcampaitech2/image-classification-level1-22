@@ -6,10 +6,11 @@
 ```
 ├──  data
 │    └── dataset.py  - file to make dataset and set augmentation
+|	   └── split_data.py - split original data by profile
 │
 ├──  metric
 │    └── custom_loss.py  - file that contains loss functions
-│
+|
 ├──  model
 │    └── custom_model.py  - file that contains model classes
 │
