@@ -8,9 +8,9 @@ import numpy as np
 import torch
 import random
 import os
-import tqdm
+from tqdm import tqdm
 
-import torch.functional as F
+import torch.nn.functional as F
 import torch.nn as nn
 from torch.utils.data import DataLoader, random_split
 from torchvision.transforms import transforms
@@ -18,20 +18,19 @@ from torchvision.transforms import transforms
 from sklearn.model_selection import train_test_split, StratifiedKFold
 from sklearn.metrics import f1_score
 import matplotlib.pyplot as plt
-from dataset import Image_Dataset
 from model import Model
 from config import Config
 
-from custom_loss import CustomLoss
+from loss import CustomLoss
 from torchsampler import ImbalancedDatasetSampler
-from focal_loss import FocalLoss
-from catalyst.data.sampler import BalanceClassSampler
+# from catalyst.data.sampler import BalanceClassSampler
+from dataset import TrainDataset, TestDataset
 
 # torch.cuda.empty_cache()
 
 def set_seed(SEED): # random seed를 고정해줌
-    np.random.seed(SEED)
-    random.seed(SEED)
+    # np.random.seed(SEED)
+    # random.seed(SEED)
     os.environ['PYTHONHASHSEED'] = str(SEED)
     torch.manual_seed(SEED)
     torch.cuda.manual_seed(SEED)
@@ -55,49 +54,42 @@ def get_config(): # python local에서 받아올
 
     return config
 
-def get_data_loader(train_path,test_path, config):
-
-    train= pd.read_csv(train_path)
-    test= pd.read_csv(os.path.join(test_path, 'info.csv'))
-    test_img_dir= os.path.join(TEST_PATH, 'images')
-    image_paths = [os.path.join(test_img_dir, img_id) for img_id in test.ImageID]
+def get_data_loader(train_path, val_path,test_path, config):
 
     mean = (0.56, 0.52, 0.50)
     std = (0.23, 0.24, 0.24)
 
-    train_trans= transforms.Compose([
+    train_transform= transforms.Compose([
         transforms.CenterCrop((350, 300)),
-        # transforms.RandomHorizontalFlip(),
+        transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
-        # transforms.Normalize(mean, std),
+        transforms.Normalize(mean, std),
         ])
     
-    test_trans= transforms.Compose([
+    test_transform= transforms.Compose([
         transforms.CenterCrop((350, 300)),
         transforms.ToTensor(),
-        # transforms.Normalize(mean, std)
+        transforms.Normalize(mean, std)
     ])
-    
-    trainset, valset= train_test_split(train, test_size= 0.2, random_state= 42)
 
-    trainset_= Image_Dataset(trainset, transform= train_trans)
-    valset_= Image_Dataset(valset, transform= test_trans)
-    testset_= Image_Dataset(image_paths, transform= test_trans, train= False)
+    trainset= TrainDataset(train_path, transforms= train_transform)
+    valset= TrainDataset(val_path, transforms= test_transform)
+    testset= TestDataset(test_path, base_path= '/opt/ml/input/data/eval', transforms= test_transform)
 
-    train_loader= DataLoader(trainset_, batch_size= config.BATCH_SIZE, shuffle= True, num_workers= 1)
-    val_loader= DataLoader(valset_, batch_size= config.BATCH_SIZE, shuffle= True, num_workers= 1)
-    test_loader= DataLoader(testset_, batch_size= 1, shuffle= False, num_workers= 3)
+    train_loader= DataLoader(trainset, batch_size= config.BATCH_SIZE, sampler= ImbalancedDatasetSampler(trainset), num_workers= 2)
+    val_loader= DataLoader(valset, batch_size= config.BATCH_SIZE, shuffle= True, num_workers= 1)
+    test_loader= DataLoader(testset, batch_size= config.BATCH_SIZE, shuffle= False, num_workers= 2)
     
     return train_loader, val_loader, test_loader
 
-def train(epoch, optim, loss_func, train_loader, val_loader, model, schedular= None):
+
+def train(epoch, optim, loss_func, train_loader, val_loader, model, schedular= None, i= 0):
     
     running_loss = 0
     running_acc = 0
     running_f1= 0
-    n_iter= 0
-    pbar= tqdm.tqdm(enumerate(train_loader), total= len(train_loader), position= True, leave= True)
 
+    pbar= tqdm(enumerate(train_loader), total= len(train_loader))
     for idx, (images, labels) in pbar:
         model.train()
         images= images.to(device)
@@ -106,15 +98,18 @@ def train(epoch, optim, loss_func, train_loader, val_loader, model, schedular= N
         optim.zero_grad()
 
         if config.BETA > 0 and np.random.random()>0.5: # cutmix 작동될 확률      
-                lam = np.random.beta(config.BETA, config.BETA)
-                rand_index = torch.randperm(images.size()[0]).to(device)
-                target_a = labels
-                target_b = labels[rand_index]            
-                bbx1, bby1, bbx2, bby2 = rand_bbox(images.size(), lam)
-                images[:, :, bbx1:bbx2, bby1:bby2] = images[rand_index, :, bbx1:bbx2, bby1:bby2]
-                lam = 1 - ((bbx2 - bbx1) * (bby2 - bby1) / (images.size()[-1] * images.size()[-2]))
-                outputs = model(images)
-                loss = loss_func(outputs, target_a) * lam + loss_func(outputs, target_b) * (1. - lam)
+            lam= 0.5
+            indices = torch.randperm(images.size(0))
+            patch_images= images.clone()
+            patch_labels= labels.clone()
+            patch_labels= patch_labels[indices]
+            W= images.size()[3]
+
+            images_cut= images.clone()
+            images_cut[:, :, :, :W//2] = patch_images[indices, :, :, :W//2]
+            outputs = model(images_cut)
+            
+            loss = loss_func(outputs, labels) * lam + loss_func(outputs, patch_labels) * lam
 
         else:
             outputs= model(images) # 예측값
@@ -128,33 +123,39 @@ def train(epoch, optim, loss_func, train_loader, val_loader, model, schedular= N
         running_loss += loss.item() * images.size(0)
         running_acc += torch.sum(preds == labels.data)
         running_f1 += f1_score(preds.cpu().numpy(), labels.cpu().numpy(), average='macro')
-        n_iter+=1
     # print('\npreds', preds,'\nlabels:', labels)
 
 
     model.eval()
     with torch.no_grad():
-        val_loss, val_acc, val_f1= valid_model(model, val_loader, loss_func)
+        val_loss, val_acc, val_f1= valid_model(model, val_loader, loss_func, i)
 
     train_loss=  running_loss/ len(train_loader.dataset)
     train_acc=  running_acc/ len(train_loader.dataset)
-    train_f1= running_f1/ n_iter
+    train_f1= running_f1/ len(train_loader)
 
     print(f'\nEpoch: {epoch} train loss: {train_loss}, train acc: {train_acc}, train f1: {train_f1}\
             val loss: {val_loss}, val acc: {val_acc}, val_f1: {val_f1}')
-    wandb.log({'train_acc': train_acc, 'train_f1': train_f1, 'val_acc': val_acc,'val_f1': val_f1})
+    wandb.log({'train_acc': train_acc, 'train_f1': train_f1, 'val_acc': val_acc,'val_f1': val_f1 ,
+        'val loss': val_loss, 'val acc': val_acc, 'val_f1': val_f1})
     
     if schedular is not None:
         schedular.step()
+    
+    return val_f1
+    
 
 
-def valid_model(model, val_loader, loss_func):
+def valid_model(model, val_loader, loss_func, i):
     val_acc= 0
     val_loss= 0
     val_f1= 0
 
-    n= 0
-    for idx, (images, labels) in enumerate(val_loader):
+    # prediction= pd.read_csv('/opt/ml/code2/valset_LABEL.csv')
+    # predicts= []
+
+    pbar= tqdm(enumerate(val_loader), total= len(val_loader))
+    for idx, (images, labels) in pbar:
         images= images.to(device)
         labels= labels.to(device)
 
@@ -166,10 +167,14 @@ def valid_model(model, val_loader, loss_func):
         val_f1 += f1_score(preds.cpu().numpy(), labels.cpu().numpy(), average='macro')
         val_acc += torch.sum(preds == labels.data)
         val_loss += loss
-        n+=1
+        # predicts.extend(preds.cpu().numpy())
+    # prediction['label']= predicts
+    # prediction.to_csv(f'/opt/ml/code2/val_pred{i}.csv')
+    i+=1
+
     val_loss_=  val_loss/ len(val_loader.dataset)
     val_acc_= val_acc/ len(val_loader.dataset)
-    val_f1_= val_f1/ n
+    val_f1_= val_f1/ len(val_loader)
 
     return val_loss_, val_acc_, val_f1_
 
@@ -177,16 +182,23 @@ def make_submission(model, test_loader, submission, sub_path):
 
     model.eval()
     all_predictions = []
-    for images in tqdm.tqdm(test_loader):
+    soft_predictions= []
+    for images in tqdm(test_loader):
         with torch.no_grad():
             images = images.to(device)
-            pred = model(images)
-            pred = pred.argmax(dim=-1)
+            preds = model(images)
+            preds= F.softmax(preds, dim= 1)
+            pred = preds.argmax(dim=-1)
+
             all_predictions.extend(pred.cpu().numpy())
+            soft_predictions.extend(preds.cpu().numpy())
 
     submission['ans'] = all_predictions
-
     submission.to_csv(sub_path, index=False)
+
+    submission['ans']= soft_predictions
+    submission.to_csv(f'/opt/ml/code2/submission/SOFT_CUT_F1CE_IMB_DATA_STRATIFY_AGE_EPOCH{epoch}_{val_score}.csv', index=False)
+
 
 def save_image(data_loader, signal):
     if signal== 'train':
@@ -202,7 +214,7 @@ def rand_bbox(size, lam): # size : [B, C, W, H]
     W = size[2] # 이미지의 width
     H = size[3] # 이미지의 height
     cut_rat = np.sqrt(1. - lam)  # 패치 크기의 비율 정하기
-    cut_w = W  # 패치의 너비
+    cut_w = np.int(W * cut_rat)  # 패치의 너비
     cut_h = np.int(H * cut_rat)  # 패치의 높이
 
     # uniform
@@ -211,9 +223,9 @@ def rand_bbox(size, lam): # size : [B, C, W, H]
     cy = np.random.randint(H)
 
     # 패치 부분에 대한 좌표값을 추출합니다.
-    bbx1 = 0
+    bbx1 = np.clip(cx - cut_w // 2, 0, W)
     bby1 = np.clip(cy - cut_h // 2, 0, H)
-    bbx2 = W
+    bbx2 = np.clip(cx + cut_w // 2, 0, W)
     bby2 = np.clip(cy + cut_h // 2, 0, H)
     # print('cx cy', cx, cy)
     # print('hi', bbx1, bbx2, bby1, bby2)
@@ -240,44 +252,52 @@ def cut_mix_img(train_data_loader):
 
 if __name__=='__main__':
 
-    wandb.init(project= 'img_clf1')
     
     set_seed(42)
     config= get_config()
 
-    wandb.config.update(config)
     device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
     print(device) 
     print(config)
     
     IMG_WIDTH, IMG_HEIGHT= 384, 512
-    TRAIN_CSV_PATH= '/opt/ml/code/train_with_label_57.csv'
-    TEST_PATH= '/opt/ml/input/data/eval'
-    submission=  pd.read_csv(os.path.join(TEST_PATH, 'info.csv'))
+    TRAIN_CSV_PATH= '/opt/ml/code2/trainset_LABEL.csv'
+    VAL_PATH= '/opt/ml/code2/valset_LABEL.csv'
+    TEST_PATH= '/opt/ml/input/data/eval/info.csv'
+    submission=  pd.read_csv(TEST_PATH)
 
     SIZE= [config.BATCH_SIZE, 3, IMG_WIDTH, IMG_HEIGHT]
 
-    model= Model()
+    model= Model(18)
     # model = torch.load('/opt/ml/code/model_pt/eff_model_0.719.pt')
     model.to(device)  
 
+    wandb.init(project= 'img_clf1')
+    wandb.config.update(config)
     wandb.watch(model)
 
     # loss_func= torch.nn.CrossEntropyLoss()
     loss_func= CustomLoss(18)
     optm= torch.optim.Adam(model.parameters(), lr= config.LEARNING_RATE)
-    schedular= torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optm, T_max=10, eta_min=1e-6)
+    schedular= torch.optim.lr_scheduler.CyclicLR(optimizer=optm, base_lr= 1e-7,\
+                                            max_lr= config.LEARNING_RATE, 
+                                            step_size_up= 2, step_size_down= 4, 
+                                            cycle_momentum= False, verbose= True)
 
-    train_loader, val_loader, test_loader= get_data_loader(TRAIN_CSV_PATH, TEST_PATH, config)
+    train_loader, val_loader, test_loader= get_data_loader(TRAIN_CSV_PATH, VAL_PATH, TEST_PATH, config)
 
     # cut_mix_img(train_loader)
+    i= 0
 
     print('\ntrain start')
     for epoch in range(config.EPOCHS):
-        train(epoch, optm, loss_func, train_loader, val_loader, model, schedular)
+        val_score= train(epoch, optm, loss_func, train_loader, val_loader, model, schedular, i)
+        if val_score> 0.74:
+            make_submission(model, test_loader, submission,f'/opt/ml/code2/submission/CUT_F1CE_IMB_DATA_STRATIFY_LABEL_EPOCH{epoch}_{val_score}.csv')
+            torch.save(model, f'/opt/ml/code2/model/CUT_F1CE_IMB_DATA_STRATIFY_LABEL_EPOCH{epoch}_{val_score}.pt')
+
+        i+=1
+
     print('\ntrain fin')
 
-    make_submission(model, test_loader, submission,'/opt/ml/code/submission/submission_f1CE_57_CUT6.csv')
 
-    torch.save(model, '/opt/ml/code/model_pt/eff_f1CE_55_CUT6.pt')
