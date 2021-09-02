@@ -8,6 +8,39 @@ from torch.utils.data import Dataset, Subset
 from torchvision import transforms
 from torchvision.transforms import *
 from PIL import Image
+from facenet_pytorch import MTCNN
+import cv2
+
+class FaceNet:
+    def __init__(self, **args):
+        self.transform = None
+    def __call__(self, image):
+        mtcnn = MTCNN(keep_all=True, device=torch.device('cuda'))
+        X = np.array(image)
+        X = cv2.cvtColor(X,cv2.COLOR_BGR2RGB)
+        boxes, probs = mtcnn.detect(X)
+        if isinstance(boxes,np.ndarray) == False:
+            X = X[100:400, 50:350, :]
+            X = transforms.ToTensor()(X)
+            X = transforms.Resize((244,244))(X)
+        else:
+            xmin = int(boxes[0,0])-30
+            ymin = int(boxes[0,1])-30
+            xmax = int(boxes[0,2])+30
+            ymax = int(boxes[0,3])+30
+            if ymax <= 0 or ymin <= 0 or xmax <= 0 or xmin <= 0: 
+                X = X[100:400, 50:350, :]
+                X = transforms.ToTensor()(X)
+                X = transforms.Resize((244,244))(X)
+            else:
+                X = X[ymin:ymax, xmin:xmax, :]
+                # 원본 색깔로 되돌리기, 주석처리하면 파란색이미지
+                #X = cv2.cvtColor(X,cv2.COLOR_RGB2BGR)
+                X = transforms.ToTensor()(X)
+                X = transforms.Resize((244,244))(X)
+        return X
+
+
 
 class SimpleAugmentation:
     def __init__(self, **args):
