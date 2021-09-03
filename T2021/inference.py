@@ -15,6 +15,7 @@ from torchvision import transforms
 
 def submission(args, transform):
     submission = pd.read_csv(os.path.join(args.test_dir, 'info.csv'))
+    soft_submission = submission.copy()
     image_dir = os.path.join(args.test_dir, 'images')
 
     device = torch.device('cuda')
@@ -43,30 +44,44 @@ def submission(args, transform):
 
     # 모델이 테스트 데이터셋을 예측하고 결과를 저장합니다.
     all_predictions = []
+    soft_predictions = []
     for images in loader:
         with torch.no_grad():
             images = images.to(device)
-            pred = model(images)
-            pred = pred.argmax(dim=-1)
+            preds = model(images)
+            pred = preds.argmax(dim=-1)
             all_predictions.extend(pred.cpu().numpy())
+            preds = F.softmax(preds, dim=1)
+            soft_predictions.extend(preds.cpu().numpy())
     submission['ans'] = all_predictions
+    soft_submission['ans'] = soft_predictions
 
     # 제출할 파일을 저장합니다.
     if args.submission_dir != '':
         submission_path = os.path.join(args.submission_dir, args.submission_file)
+        soft_submission_path = os.path.join(args.submission_dir, args.soft_file)
     else:
         submission_path = os.path.join(args.test_dir, args.submission_file)
+        soft_submission_path = os.path.join(args.test_dir, args.soft_file)
     
     submission.to_csv(submission_path, index=False)
+    soft_submission.to_csv(soft_submission_path, index=False)
+
+
+    #soft submission
+
+
     print('test inference is done!')
     print(f'submission file saved at {submission_path}')
+    print(f'soft submission file saved at {soft_submission_path}')
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--model', type=str, default='EfficientNetModel', help='model type (default: EfficientNetModel)')
-    parser.add_argument('--model_path', type=str, default='', help='model checkpoint path')
+    parser.add_argument('--model_path', type=str, default='./checkpoint/efficientnet-b0_best_checkpoint.pt', help='model checkpoint path(example:./checkpoint/efficientnet-b0_best_checkpoint.pt)')
     parser.add_argument('--submission_file', type=str, default='submission.csv', help='submission file name')
+    parser.add_argument('--soft_file', type=str, default='soft_submission.csv', help='soft submission file name')
     parser.add_argument('--submission_dir', type=str, default='', help='path to save submission file')
     parser.add_argument('--test_dir', type=str, default='/opt/ml/input/data/eval', help='path of evaluation data')
     

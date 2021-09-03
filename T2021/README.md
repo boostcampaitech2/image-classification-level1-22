@@ -28,5 +28,8 @@ $ python train.py
 ## Make Submission
 To make submission file, run command.
 ```
-$ python inference.py
+$ python inference.py --model_path=./checkpoint/efficientnet-b0_best_checkpoint.pt
 ```
+You can inference your model by changing model_path.
+This command makes submission.csv file and soft_submission.csv file.
+soft_submission_csv file is used for ensemble.
