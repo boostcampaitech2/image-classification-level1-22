@@ -42,3 +42,9 @@ To make submission, run follwing command.
 ```
 $ python inference.py -c config.json
 ```
+
+## Make soft ensemble Submission
+To make submission, run follwing command.
+```
+$ python inference_ensemble.py -c config.json
+```
