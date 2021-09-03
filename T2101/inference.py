@@ -1,71 +1,73 @@
 import os
 import pandas as pd
-from PIL import Image
 from tqdm import tqdm
 
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 
 from torchvision import transforms
-from torchvision.transforms import Resize, ToTensor, Normalize
+from torchvision.transforms import ToTensor
 
-from model import MyModel
-from dataset import CustomDataset
+from dataset import TestDataset
 
-class TestDataset(Dataset):
-    def __init__(self, img_paths, transform):
-        self.img_paths = img_paths
-        self.transform = transform
+def get_f1_score(y_pred, y_true):
+    num_classes = 18
+    epsilon = 1e-7
 
-    def __getitem__(self, index):
-        image = Image.open(self.img_paths[index])
+    y_pred = F.softmax(y_pred, dim=1)
+    _, y_pred = torch.max(y_pred, 1)
 
-        if self.transform:
-            image = self.transform(image)
-        return image
+    y_pred = F.one_hot(y_pred, num_classes).to(torch.float32)
+    y_true = F.one_hot(y_true, num_classes).to(torch.float32)
+    
+    tp = (y_true * y_pred).sum(dim=0).to(torch.float32)
+    tn = ((1 - y_true) * (1 - y_pred)).sum(dim=0).to(torch.float32)
+    fp = ((1 - y_true) * y_pred).sum(dim=0).to(torch.float32)
+    fn = (y_true * (1 - y_pred)).sum(dim=0).to(torch.float32)
 
-    def __len__(self):
-        return len(self.img_paths)
+    precision = tp / (tp + fp + epsilon)
+    recall = tp / (tp + fn + epsilon)
+    
+    f1 = 2 * (precision * recall) / (precision + recall + epsilon)
+    f1 = f1.clamp(min=epsilon, max=1 - epsilon)
+    return f1.mean()
         
+def main():
+    test_dir = '/opt/ml/input/data/eval'
 
-test_dir = '/opt/ml/input/data/eval'
+    submission = pd.read_csv(os.path.join(test_dir, 'info.csv'))
+    image_dir = os.path.join(test_dir, 'images')
 
-# meta 데이터와 이미지 경로를 불러옵니다.
-submission = pd.read_csv(os.path.join(test_dir, 'info.csv'))
-image_dir = os.path.join(test_dir, 'images')
+    image_paths = [os.path.join(image_dir, img_id) for img_id in submission.ImageID]
+    transform = transforms.Compose([
+        ToTensor(),
+    ])
+    dataset = TestDataset(image_paths, transform)
 
-# Test Dataset 클래스 객체를 생성하고 DataLoader를 만듭니다.
-image_paths = [os.path.join(image_dir, img_id) for img_id in submission.ImageID]
-transform = transforms.Compose([
-    Resize((512, 384), Image.BILINEAR),
-    ToTensor(),
-    Normalize(mean=(0.5, 0.5, 0.5), std=(0.2, 0.2, 0.2)),
-])
-dataset = TestDataset(image_paths, transform)
+    loader = DataLoader(
+        dataset,
+        shuffle=False,
+    )
 
-loader = DataLoader(
-    dataset,
-    shuffle=False
-)
+    device = torch.device('cuda')
+    model = torch.load('best.pt')
+    model.eval()
 
-# 모델을 정의합니다. (학습한 모델이 있다면 torch.load로 모델을 불러주세요!)
-device = torch.device('cuda')
-# model = MyModel(num_classes=18).to(device)
-model = torch.load('model_l_0.891_a_0.687.pt')
-model.eval()
+    all_predictions = []
+    soft_predictions = []
+    for images in tqdm(loader):
+        with torch.no_grad():
+            images = images.to(device)
+            pred = model(images)
+            soft_pred = F.softmax(pred, dim=1)
+            pred = pred.argmax(dim=-1)
+            all_predictions.extend(pred.cpu().numpy())
+            soft_predictions.extend(soft_pred.cpu().numpy())
+    submission['ans'] = soft_predictions
+    
+    submission.to_csv('soft_submission_T2101.csv', index=False)
+    print('test inference is done!')
 
-# 모델이 테스트 데이터셋을 예측하고 결과를 저장합니다.
-all_predictions = []
-for images in tqdm(loader):
-    with torch.no_grad():
-        images = images.to(device)
-        pred = model(images)
-        pred = pred.argmax(dim=-1)
-        all_predictions.extend(pred.cpu().numpy())
-submission['ans'] = all_predictions
-
-# 제출할 파일을 저장합니다.
-submission.to_csv(os.path.join(test_dir, f'submission_1.csv'), index=False)
-print('test inference is done!')
+if __name__ == '__main__':
+    main()
