@@ -10,6 +10,8 @@ from torchvision.transforms import *
 from PIL import Image
 from facenet_pytorch import MTCNN
 import cv2
+from collections import Counter
+import random
 
 class FaceNet:
     def __init__(self, **args):
@@ -102,10 +104,11 @@ def get_mask(mask):
     else:
         return 'mask'
 
-def get_age(age):
+def get_age(age, threshold):
+    assert threshold > 30, 'threshold must be over than 30'
     if age < 30:
         return 'young'
-    elif age < 58: # 58, 59 세도 60세 이상으로 분류
+    elif age < threshold: # 58, 59 세도 60세 이상으로 분류
         return 'middle'
     else:
         return 'old'
@@ -164,7 +167,7 @@ class CustomDataset(Dataset):
 
             for image in images:
                 self.image_paths.append(os.path.join(self.data_dir, 'images', row['path'], image))
-                self.labels.append(get_label(get_mask(image), row['gender'], get_age(row['age'])))
+                self.labels.append(get_label(get_mask(image), row['gender'], get_age(row['age'], threshold=58)))
 
                 for phase in split_folders.keys():
                     if row['path'] in split_folders[phase]:
@@ -211,5 +214,24 @@ class CustomDataset(Dataset):
     def split_dataset(self):
         if self.mode == 'train':
             return [Subset(self, indices) for phase, indices in self.indices.items()]
+        elif self.mode == 'eval':
+            raise ValueError(f"train 시에만 split 이 가능합니다, {self.mode}")
+        
+    def _get_min_class_num(self):
+        counts = Counter(self.labels)
+        return min(counts.values())
+
+    def split_balanced_dataset(self):
+        min_class_num = self._get_min_class_num()
+        labels_array = np.array(self.labels)
+        labels = set(self.labels)
+        total_indices = []
+        
+        for label in labels:
+            indices = np.where(labels_array == label)[0]
+            total_indices += random.choices(indices, k=min_class_num)
+
+        if self.mode == 'train':
+            return [Subset(self, total_indices), Subset(self, self.indices['val'])]
         elif self.mode == 'eval':
             raise ValueError(f"train 시에만 split 이 가능합니다, {self.mode}")
