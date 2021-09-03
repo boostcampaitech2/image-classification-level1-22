@@ -175,13 +175,18 @@ def make_submission(model, test_loader, submission, sub_path):
     for images in tqdm(test_loader):
         with torch.no_grad():
             images = images.to(device)
-            pred = model(images)
-            pred = pred.argmax(dim=-1)
+            preds = model(images)
+            pred = preds.argmax(dim=-1)
             all_predictions.extend(pred.cpu().numpy())
+            soft_predictions.extend(preds.cpu().numpy())
+
 
     submission['ans'] = all_predictions
 
     submission.to_csv(sub_path, index=False)
+    
+    submission['ans']= soft_predictions
+    submission.to_csv(f'/opt/ml/code2/submission/soft_submission.csv', index=False)
 
 if __name__=='__main__':
 
@@ -198,8 +203,6 @@ if __name__=='__main__':
     VAL_PATH= './valset_LABEL.csv'
     TEST_PATH= '/opt/ml/input/data/eval/info.csv'
     submission=  pd.read_csv(TEST_PATH)
-
-    SIZE= [config.BATCH_SIZE, 3, IMG_WIDTH, IMG_HEIGHT]
 
     model= Model(18)
     # model = torch.load('/opt/ml/code/model_pt/eff_model_0.719.pt')
@@ -219,15 +222,13 @@ if __name__=='__main__':
 
     train_loader, val_loader, test_loader= get_data_loader(TRAIN_CSV_PATH, VAL_PATH, TEST_PATH, config)
 
-    # cut_mix_img(train_loader)
     i= 0
-
     print('\ntrain start')
     for epoch in range(config.EPOCHS):
         train(epoch, optm, loss_func, train_loader, val_loader, model, schedular, i)
     print('\ntrain fin')
 
-    make_submission(model, test_loader, submission,f'/opt/ml/code2/submission/CUT_F1CE_IMB_DATA_STRATIFY_EPOCH{epoch}.csv')
+    make_submission(model, test_loader, submission, f'/opt/ml/code2/submission/CUT_F1CE_IMB_DATA_STRATIFY_EPOCH{epoch}.csv')
     torch.save(model, '/opt/ml/code2/model/CUT_F1CE_IMB_DATA_STRATIFY_EPOCH{epoch}')
 
 

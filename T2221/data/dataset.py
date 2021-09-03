@@ -123,28 +123,6 @@ if __name__ == '__main__':
     makelabel= MakeLabel(BASE_PATH, val_ratio)
     makelabel.run()
     
-    # TEST_CSV_PATH= '/opt/ml/input/data/eval/info.csv'
-    # TEST_BASE_PATH= '/opt/ml/input/data/eval/'
-    
-    # test= TestDataset(TEST_CSV_PATH, TEST_BASE_PATH)
-    # print(next(iter(test)))
-
-    # data= pd.read_csv('/opt/ml/code2/csv/all_.csv')
-    # older= TrainDataset('/opt/ml/code2/csv/train_old_58.csv',
-    # transforms= transforms.Compose([
-    #     transforms.ToTensor()
-    # ]))
-    # # print(older[1])
-    # print(len(older))
-    # # print(older[0])
-
-    # np.random.seed(42)
-    # # random.seed(42)
-    # # lam = np.random.beta(1, 1)
-    # # print(lam)
-    # idx= random.randrange(0, len(older))
-    # # img, lab= older[idx]
-    # print(torch.tensor(older[idx][0]))
     
 
 
