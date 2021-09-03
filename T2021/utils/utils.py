@@ -5,7 +5,7 @@ import pytz
 
 class EarlyStopping:
     #https://github.com/Bjarten/early-stopping-pytorch
-    def __init__(self, patience=7, verbose=False, delta=0, path='checkpoint.pt'):
+    def __init__(self, patience=7, verbose=False, delta=0, path='./checkpoint/checkpoint.pt'):
         self.patience = patience
         self.verbose = verbose
         self.counter = 0
@@ -55,7 +55,8 @@ def get_label_count(dataset, num_classes):
 
 def get_loss_weight(class_list, weight_schemes = "ENS", beta = 0.99, num_classes=18):
     label_count = class_list
-    
+    if torch.is_tensor(label_count): label_count = label_count.tolist()
+
     if weight_schemes == "INS":
         loss_weight = 1 / label_count
 

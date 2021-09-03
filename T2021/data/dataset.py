@@ -20,33 +20,6 @@ class BaseAugmentation:
         return self.transform(image)
 
 
-class MaskDataset(Dataset):
-  def __init__(self, csv_file, img_path, transform, multi_label = False):
-    self.csv_file = csv_file
-    self.img_path = img_path
-    self.transform = transform
-    self.multi_label = multi_label
-
-  def __len__(self):
-    return len(self.csv_file)
-  
-  def __getitem__(self, idx):
-    if torch.is_tensor(idx):
-      idx = idx.tolist()
-
-    img_name = os.path.join(self.img_path, self.csv_file["img_path"][idx])
-    image = Image.open(img_name)
-
-    if self.transform:
-      image = self.transform(image)
-
-    if self.multi_label:
-      label = self.csv_file[["mask", "gender", "age"]].iloc[idx].values
-    else:
-      label = self.csv_file["label"].iloc[idx]
-
-    return torch.tensor(image, dtype=torch.float32), torch.tensor(label, dtype=torch.long)
-
 class TestDataset(Dataset):
     def __init__(self, img_paths, transform):
         self.img_paths = img_paths
