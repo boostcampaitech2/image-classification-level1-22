@@ -27,8 +27,9 @@ def submission(args, transform):
             num_classes = 18,
             sample_size = args.sample_size
         ).to(device)
-    
-    model.load_state_dict(torch.load(args.model_path))
+        
+    model_path = os.path.join('./checkpoint/', args.pt_name)
+    model.load_state_dict(torch.load(model_path))
 
     # Test Dataset 클래스 객체를 생성하고 DataLoader를 만듭니다.
     image_paths = [os.path.join(image_dir, img_id) for img_id in submission.ImageID]
@@ -79,9 +80,11 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--model', type=str, default='EfficientNetModel', help='model type (default: EfficientNetModel)')
-    parser.add_argument('--model_path', type=str, default='./checkpoint/efficientnet-b0_best_checkpoint.pt', help='model checkpoint path(example:./checkpoint/efficientnet-b0_best_checkpoint.pt)')
-    parser.add_argument('--submission_file', type=str, default='submission.csv', help='submission file name')
-    parser.add_argument('--soft_file', type=str, default='soft_submission.csv', help='soft submission file name')
+    parser.add_argument('--pt_name', type=str, default='efficientnet-b0_best_checkpoint.pt', help='model checkpoint path(example:efficientnet-b0_best_checkpoint.pt)')
+    
+    parser.add_argument('--submission_file', type=str, default='submission_T2021.csv', help='submission file name')
+    parser.add_argument('--soft_file', type=str, default='soft_submission_T2021.csv', help='soft submission file name')
+    
     parser.add_argument('--submission_dir', type=str, default='', help='path to save submission file')
     parser.add_argument('--test_dir', type=str, default='/opt/ml/input/data/eval', help='path of evaluation data')
     
