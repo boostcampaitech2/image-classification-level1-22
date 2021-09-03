@@ -12,6 +12,7 @@ from facenet_pytorch import MTCNN
 import cv2
 from collections import Counter
 import random
+import albumentations as A
 
 class FaceNet:
     def __init__(self, **args):
@@ -235,3 +236,24 @@ class CustomDataset(Dataset):
             return [Subset(self, total_indices), Subset(self, self.indices['val'])]
         elif self.mode == 'eval':
             raise ValueError(f"train 시에만 split 이 가능합니다, {self.mode}")
+
+
+class AlbumentationDataset(CustomDataset):
+    def __init__(self):
+        super().__init__()
+
+    def __getitem__(self, idx):
+        image = Image.open(self.image_paths[idx])
+        image = np.array(image)
+
+        if self.transform:
+            image = self.transform(image=image)['image']
+            image = image / 255.0
+
+        if self.mode == 'train':
+            return image, self.labels[idx]
+        elif self.mode == 'eval':
+            return image
+
+    def set_transform(self, transform):
+        self.transform = A.Compose([transform, A.pytorch.ToTensorV2()])
