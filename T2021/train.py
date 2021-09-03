@@ -32,7 +32,7 @@ def train(args):
   # augmentation
   transform = transforms.Compose([
           transforms.CenterCrop(350),
-          transforms.Resize((224, 224), Image.BILINEAR),
+          transforms.Resize((224, 224)),
           transforms.ToTensor(),
         ])
 
