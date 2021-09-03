@@ -36,6 +36,7 @@ class CustomVit(nn.Module):
     def forward(self, x):
         return self.model(x)
 
+
 class CustomEfficientNetWithClassifier(nn.Module):
     def __init__(self, num_classes):
         super().__init__()
