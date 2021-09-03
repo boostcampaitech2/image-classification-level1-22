@@ -9,6 +9,7 @@ import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from sklearn.metrics import f1_score
+from metric.custom_metric import onehot_f1_score
 from metric.custom_loss import create_criterion
 from util.custom_util import get_now_str
 from util.slack_noti import SlackNoti
@@ -66,7 +67,9 @@ def main(config):
     # augmentation
     transform_module = getattr(import_module('data.dataset'), config['augmentation']['train'])
     transform = transform_module(
-        #resize=[128, 96],
+        resize=[224, 224],
+        mean=0.1,
+        std=0.5
         #mean=dataset.mean,
         #std=dataset.std
     )
@@ -102,13 +105,17 @@ def main(config):
     weight_age_over_60 = torch.tensor([1., 1., 5.] * 6).to(device)
 
     # 1) cross entropy loss or Focal loss
-    criterion = create_criterion(config['criterion'], weight=weight_age_over_60)
+    #criterion = create_criterion(config['criterion'], weight=weight_age_over_60)
 
     # 2) label smoothing loss
     #criterion = create_criterion(config['criterion'], classes=dataset.num_classes, smoothing=0.5)
 
+    # 3) mse
+    criterion = create_criterion(config['criterion'])
+
     # Optimizer
     optimizer = optim.Adam(model.parameters(), lr=config['learning_rate'])
+    
 
     # Training
     best_f1 = 0.
@@ -141,8 +148,13 @@ def main(config):
             optimizer.step()
 
             running_loss += loss.item() * images.size(0)
-            running_acc += torch.sum(preds == labels.data)
-            running_f1 += f1_score(labels.cpu().numpy(), preds.cpu().numpy(), average='macro')
+            
+            if labels.shape[-1] == 1:
+                running_f1 += f1_score(labels.cpu().numpy(), preds.cpu().numpy(), average='macro')
+                running_acc += torch.sum(preds == labels.data)
+            else:
+                running_f1 += onehot_f1_score(labels.cpu().numpy(), logits.cpu().detach().numpy())
+                running_acc += torch.sum(logits == labels)
 
         train_loss = running_loss / len(train_dataloader.dataset)
         train_acc = running_acc / len(train_dataloader.dataset)
@@ -178,8 +190,13 @@ def main(config):
                     loss = criterion(logits, labels)
 
                     running_loss += loss.item() * images.size(0)
-                    running_acc += torch.sum(preds == labels.data)
-                    running_f1 += f1_score(labels.cpu().numpy(), preds.cpu().numpy(), average='macro')
+                    
+                    if labels.shape[-1] == 1:
+                        running_f1 += f1_score(labels.cpu().numpy(), preds.cpu().numpy(), average='macro')
+                        running_acc += torch.sum(preds == labels.data)
+                    else:
+                        running_f1 += onehot_f1_score(labels.cpu().numpy(), logits.cpu().detach().numpy())
+                        running_acc += torch.sum(logits == labels)
 
                 val_loss = running_loss / len(val_dataloader.dataset)
                 val_acc = running_acc / len(val_dataloader.dataset)
