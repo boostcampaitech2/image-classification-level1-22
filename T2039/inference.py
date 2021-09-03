@@ -13,7 +13,8 @@ from util.slack_noti import SlackNoti
 def main(config):
     device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
-    noti = SlackNoti(config['slack_noti']['url'])
+    if config['slack_noti']['use'] == 'True':
+        noti = SlackNoti(config['slack_noti']['url'])
 
     # dataset
     dataset_module = getattr(import_module('data.dataset'), config['dataset'])
@@ -28,7 +29,7 @@ def main(config):
     # augmentation
     transform_module = getattr(import_module('data.dataset'), config['augmentation']['submission'])
     transform = transform_module(
-        #resize=config['augmentation']['resize'],
+        #resize=[128, 96],
         #mean=dataset.mean,
         #std=dataset.std
     )
@@ -42,7 +43,7 @@ def main(config):
     model_module = getattr(import_module('model.custom_model'), config['model'])
     model = model_module(dataset.num_classes)
 
-    checkpoint = torch.load(glob(os.path.join(config['path']['save'], '*.pt'))[0])
+    checkpoint = torch.load(glob(os.path.join(config['path']['save_model'], '*.pt'))[0])
     model.load_state_dict(checkpoint['model_state_dict'])
     model = model.to(device)
     
@@ -63,9 +64,11 @@ def main(config):
     df_info.to_csv(os.path.join(config['path']['submission'], 
                                 f"submission_{config['submission_no']}_{get_now_str()}.csv"), 
                    index=False)
+                   
     msg = 'inference finished'
     print(msg)
-    noti.send_message(msg)
+    if config['slack_noti']['use'] == 'True':
+        noti.send_message(msg)
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description='Mask Wear Status Classification')
