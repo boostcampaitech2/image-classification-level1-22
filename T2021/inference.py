@@ -13,9 +13,9 @@ import tqdm
 import argparse
 from torchvision import transforms
 
-def submission(args, test_dir, transform):
-    submission = pd.read_csv(os.path.join(test_dir, 'info.csv'))
-    image_dir = os.path.join(test_dir, 'images')
+def submission(args, transform):
+    submission = pd.read_csv(os.path.join(args.test_dir, 'info.csv'))
+    image_dir = os.path.join(args.test_dir, 'images')
 
     device = torch.device('cuda')
 
@@ -52,17 +52,25 @@ def submission(args, test_dir, transform):
     submission['ans'] = all_predictions
 
     # 제출할 파일을 저장합니다.
-    submission.to_csv(os.path.join(test_dir, 'submission.csv'), index=False)
+    if args.submission_dir != '':
+        submission_path = os.path.join(args.submission_dir, args.submission_file)
+    else:
+        submission_path = os.path.join(args.test_dir, args.submission_file)
+    
+    submission.to_csv(submission_path, index=False)
     print('test inference is done!')
+    print(f'submission file saved at {submission_path}')
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--model', type=str, default='EfficientNetModel', help='model type (default: EfficientNetModel)')
     parser.add_argument('--model_path', type=str, default='', help='model checkpoint path')
+    parser.add_argument('--submission_file', type=str, default='submission.csv', help='submission file name')
+    parser.add_argument('--submission_dir', type=str, default='', help='path to save submission file')
+    parser.add_argument('--test_dir', type=str, default='/opt/ml/input/data/eval', help='path of evaluation data')
+    
     args = parser.parse_args()
-
-    test_path = '../input/data/eval'
 
     transform = transforms.Compose([
         transforms.CenterCrop(350),
@@ -71,4 +79,4 @@ if __name__=="__main__":
     ])
 
     print("Start Testing...")
-    submission(args, test_path, transform)
+    submission(args, transform)

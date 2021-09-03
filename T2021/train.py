@@ -6,9 +6,6 @@ from sklearn.metrics import f1_score
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
-import albumentations as A
-import albumentations.pytorch
-
 from utils import *
 from model import *
 
@@ -21,10 +18,11 @@ def train(args):
   
   # settings
   device = torch.device('cuda')
-  wandb.init(project='FaceMaskClassification', entity='dainkim')
+  if args.wandb==True:
+    wandb.init(project=args.wandb_project, entity=args.wandb_entity)
 
   # dataset
-  train_img = '../input/data/train/images'
+  train_img = '/opt/ml/input/data/train/images'
   
   dataset_module = getattr(import_module("data.dataset"), args.dataset)
   dataset = dataset_module(
@@ -37,14 +35,6 @@ def train(args):
           transforms.Resize((224, 224), Image.BILINEAR),
           transforms.ToTensor(),
         ])
-
-  albumentations_transform = A.Compose([
-    A.CenterCrop(350, 350),
-    A.Resize(224, 224),
-    A.RandomBrightnessContrast(),
-    A.GaussNoise(p=0.2),
-    A.pytorch.transforms.ToTensorV2()
-  ])
 
   dataset.set_transform(transform)
   
@@ -75,7 +65,6 @@ def train(args):
   if args.beta > 0: #weighted cross entropy
     # class_list = [2234, 1619, 341, 2942, 3223,  423, 450, 321, 66, 589, 640, 86, 453, 323, 68, 592, 664, 86]
     class_list = get_label_count(train_set, num_classes=18)
-    if torch.is_tensor(class_list): class_list = class_list.tolist()
     loss_weight = get_loss_weight(class_list, beta=args.beta).to(device)
     criterion = create_criterion(args.criterion, weight=loss_weight)
 
@@ -131,14 +120,16 @@ def train(args):
       epoch_f1 = running_f1/ n_iter
 
       if phase=="train":
-        wandb.log({"train_loss": epoch_loss,
-                    "train_acc": epoch_acc,
-                    "train_f1": epoch_f1})
+        if args.wandb:
+          wandb.log({"train_loss": epoch_loss,
+                      "train_acc": epoch_acc,
+                      "train_f1": epoch_f1})
 
       if phase=="test":
-        wandb.log({"test_loss": epoch_loss,
-                    "test_acc": epoch_acc,
-                    "test_f1": epoch_f1})
+        if args.wandb:
+          wandb.log({"test_loss": epoch_loss,
+                      "test_acc": epoch_acc,
+                      "test_f1": epoch_f1})
         early_stopping(epoch_loss, model)
 
       print(f"현재 epoch-{epoch}의 {phase}-데이터 셋에서 평균 Loss : {epoch_loss:.3f}, 평균 Accuracy : {epoch_acc:.3f}, f1 score:{epoch_f1:.3f}")
@@ -157,22 +148,27 @@ def train(args):
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
 
-  parser.add_argument('--epochs', type=int, default=50, help='number of epochs to train (default: 50)')
+  parser.add_argument('--epochs', type=int, default=20, help='number of epochs to train (default: 20)')
   
-  parser.add_argument('--dataset', type=str, default='MaskSplitByProfileDataset', help='dataset augmentation type (default: MaskSplitByProfileDataset)')  
+  parser.add_argument('--dataset', type=str, default='MaskBaseDataset', help='dataset augmentation type (default: MaskBaseDataset)')  
   
   parser.add_argument('--batch_size', type=int, default=64, help='input batch size for training (default: 64)')
   parser.add_argument('--valid_batch_size', type=int, default=32, help='input batch size for validing (default: 32)')
 
-  parser.add_argument('--model', type=str, default='EfficientNetModel', help='model type (default: BaseModel)')
+  parser.add_argument('--model', type=str, default='EfficientNetModel', help='model type (default: EfficientNetModel)')
   parser.add_argument('--criterion', type=str, default='cross_entropy', help='criterion type (default: cross_entropy)')
-  parser.add_argument('--optimizer', type=str, default='Adam', help='optimizer type (default: SGD)')
+  parser.add_argument('--optimizer', type=str, default='Adam', help='optimizer type (default: Adam)')
   parser.add_argument('--lr', type=int, default=0.001, help='learning rate (default: 0.001)')
 
   parser.add_argument('--patience', type=int, default=5, help='early stopping patience(default: 5)')
 
   parser.add_argument('--beta', type=int, default=0.999, help='calculating cross entropy loss weight (default: 0.999)')
   parser.add_argument('--sample_size', type=int, default=2, help='dropout sample size for MSD (default: 2)')
+
+  #wandb
+  parser.add_argument('--wandb', type=bool, default=False, help='use wandb: True/False')
+  parser.add_argument('--wandb_project', type=str, default='', help='your wandb project name')
+  parser.add_argument('--wandb_entity', type=str, default='', help='your wandb user name')
 
   args = parser.parse_args()
   
