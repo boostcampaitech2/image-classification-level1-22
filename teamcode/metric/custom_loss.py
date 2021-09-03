@@ -40,7 +40,7 @@ class LabelSmoothingLoss(nn.Module):
 
 
 class CustomLabelSmoothingLoss(nn.Module):
-    def __init__(self, classes=18, smoothing=0.1, dim=-1):
+    def __init__(self, classes=18, smoothing=0.1, dim=-1, weight=1):
         super(CustomLabelSmoothingLoss, self).__init__()
         self.confidence = 1.0 - smoothing
         self.smoothing = smoothing
