@@ -44,7 +44,7 @@ def main(config):
     model_module = getattr(import_module('model.custom_model'), config['model'])
     model = model_module(dataset.num_classes)
 
-    checkpoint = torch.load(os.path.join(config['path']['save_model'], 'efficientNet_checkpoint_20210902135819_005_best.pt'))
+    checkpoint = torch.load(os.path.join(config['path']['save_model'], 'soft_ensemble_model_T2039.pt'))
     model.load_state_dict(checkpoint['model_state_dict'])
     model = model.to(device)
     
@@ -63,9 +63,9 @@ def main(config):
     df_info['ans'] = soft_preds
 
     # save
-    df_info.to_csv(os.path.join(config['path']['submission'], 
-                                f"submission_{config['submission_no']}_{get_now_str()}.csv"), 
-                   index=False)
+    #save_file_name = f"submission_{config['submission_no']}_{get_now_str()}.csv"
+    save_file_name = "soft_submission_T2039.csv"
+    df_info.to_csv(os.path.join(config['path']['submission'], save_file_name), index=False)
                    
     msg = 'inference finished'
     print(msg)
