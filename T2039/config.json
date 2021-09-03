@@ -1,23 +1,27 @@
 {
     "seed": 2021,
-    "submission_no": "no",
-    "num_epoch": 10,
-    "batch_size": 64,
+    "submission_no": "ensemble",
+    "num_epoch": 20,
+    "batch_size": 32,
     "val_ratio": 0.1,   
     "learning_rate": 0.001,
     "early_stop": 9999,
+    "cutmix": {
+        "alpha": 1,
+        "save_max_cnt": 5
+    },
     "dataset": "CustomDataset",
     "augmentation": {
         "train": "SimpleAugmentation",
-        "submission": "SimpleAugmentation",
-        "resize": [128, 96]
+        "submission": "SimpleAugmentation"
     },
     "model": "CustomEfficientNet",
     "criterion": "cross_entropy",
     "path": {
         "train_data": "/opt/ml/input/data/train",
         "eval_data": "/opt/ml/input/data/eval",
-        "save": "./saved",
+        "save_model": "./saved/model",
+        "save_image": "./saved/image",
         "submission": "./submission"
     },
     "wandb": {
@@ -26,6 +30,7 @@
         "entity": "zgotter"
     },
     "slack_noti": {
+        "use": "True",
         "url": "https://hooks.slack.com/services/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"
     }    
 }

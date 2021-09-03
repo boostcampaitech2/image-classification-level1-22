@@ -2,8 +2,8 @@ import argparse
 from parse_config import json_to_config
 from importlib import import_module
 import os
-# import random
-# import numpy as np
+import random
+import numpy as np
 from tqdm import tqdm
 import torch
 import torch.optim as optim
@@ -11,14 +11,14 @@ from torch.utils.data import DataLoader
 from sklearn.metrics import f1_score
 from metric.custom_loss import create_criterion
 from util.custom_util import get_now_str
+from util import cutmix_util as cutmix
 from util.slack_noti import SlackNoti
 import wandb
 
-
 def seed_everything(seed):
-    #random.seed(seed)
+    random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
-    #np.random.seed(seed)
+    #np.random.seed(seed) # for cutmix
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)  # if use multi-GPU
@@ -32,7 +32,8 @@ def main(config):
     seed_everything(config['seed'])
 
     # slack noti setting
-    noti = SlackNoti(config['slack_noti']['url'])
+    if config['slack_noti']['use'] == 'True':
+        noti = SlackNoti(config['slack_noti']['url'])
 
     # wandb setting
     if config['wandb']['use'] == 'True':
@@ -65,7 +66,7 @@ def main(config):
     # augmentation
     transform_module = getattr(import_module('data.dataset'), config['augmentation']['train'])
     transform = transform_module(
-        #resize=config['augmentation']['resize'],
+        #resize=[128, 96],
         #mean=dataset.mean,
         #std=dataset.std
     )
@@ -87,7 +88,7 @@ def main(config):
         val_dataloader = DataLoader(
             val_dataset,
             batch_size=config['batch_size'],
-            shuffle=True,
+            shuffle=False,
             drop_last=True            
         )
 
@@ -120,6 +121,7 @@ def main(config):
 
     for epoch in range(1, config['num_epoch']+1):
 
+        check_f1 = 0.
         ############### train ###############
         running_loss = 0
         running_acc = 0
@@ -127,30 +129,56 @@ def main(config):
 
         model.train()
 
-        n_iter = 0
+        #cutmix_save_cnt = 0
+
         for i, (images, labels) in enumerate(tqdm(train_dataloader)):
             images = images.to(device)
-            labels = labels.to(device) 
+            labels = labels.to(device)
+
+            ####### cutmix - start #######
+            # cutmix_decision = np.random.rand()
+            cutmix_decision = 0 # cutmix not use
+            if cutmix_decision > 0.50:
+                # W = images.size(2)
+                # H = images.size(3)
+
+                # images_shuffled, labels_shuffled = cutmix.shuffle_minibatch(images, labels)
+                # lam = np.random.beta(config['cutmix']['alpha'], config['cutmix']['alpha'])
+                # bbx1, bby1, bbx2, bby2 = cutmix.quarter_bbox(images.size(), lam)
+                # images[:, :, bbx1:bbx2, bby1:bby2] = images_shuffled[:, :, bbx1:bbx2, bby1:bby2]
+                # lam = 1 - (bbx2 - bbx1) * (bby2 - bby1) / (W * H)
+
+                # if config['cutmix']['save_max_cnt'] > cutmix_save_cnt:
+                #     cutmix.save_image(images[0], config['path']['save_image'], epoch, i)
+                #     cutmix_save_cnt += 1
+            ####### cutmix - end #######
 
             optimizer.zero_grad()
+
             logits = model(images)
             _, preds = torch.max(logits, 1)
-            loss = criterion(logits, labels)
+
+            if cutmix_decision > 0.50: # cutmix not use
+                # loss = criterion(logits, labels) * lam + criterion(logits, labels_shuffled) * (1. - lam)
+            else:
+                loss = criterion(logits, labels)
+
             loss.backward()
             optimizer.step()
 
             running_loss += loss.item() * images.size(0)
             running_acc += torch.sum(preds == labels.data)
             running_f1 += f1_score(labels.cpu().numpy(), preds.cpu().numpy(), average='macro')
-            n_iter += 1            
 
         train_loss = running_loss / len(train_dataloader.dataset)
         train_acc = running_acc / len(train_dataloader.dataset)
-        train_f1 = running_f1 / n_iter
+        train_f1 = running_f1 / len(train_dataloader)
+        check_f1 = train_f1
 
         msg = f"train | epoch {epoch:03d}/{config['num_epoch']:03d}, loss: {train_loss:.4f}, acc: {train_acc:.4f}, f1: {train_f1:.4f}"
         print(msg)
-        noti.send_message(msg)
+        if config['slack_noti']['use'] == 'True':
+            noti.send_message(msg)
         if config['wandb']['use'] == 'True':
             wandb.log({
                 f'train loss': train_loss,
@@ -159,50 +187,49 @@ def main(config):
             })
 
         ############### eval ###############
-        if val_dataloader == None: continue
+        if val_dataloader != None:
+            with torch.no_grad():
+                running_loss = 0
+                running_acc = 0
+                running_f1 = 0
 
-        with torch.no_grad():
-            running_loss = 0
-            running_acc = 0
-            running_f1 = 0
+                model.eval()
 
-            model.eval()
+                for images, labels in tqdm(val_dataloader):
+                    images = images.to(device)
+                    labels = labels.to(device) 
 
-            n_iter = 0
-            for i, (images, labels) in enumerate(tqdm(val_dataloader)):
-                images = images.to(device)
-                labels = labels.to(device) 
+                    logits = model(images)
+                    _, preds = torch.max(logits, 1)
+                    loss = criterion(logits, labels)
 
-                logits = model(images)
-                _, preds = torch.max(logits, 1)
-                loss = criterion(logits, labels)
+                    running_loss += loss.item() * images.size(0)
+                    running_acc += torch.sum(preds == labels.data)
+                    running_f1 += f1_score(labels.cpu().numpy(), preds.cpu().numpy(), average='macro')
 
-                running_loss += loss.item() * images.size(0)
-                running_acc += torch.sum(preds == labels.data)
-                running_f1 += f1_score(labels.cpu().numpy(), preds.cpu().numpy(), average='macro')
-                n_iter += 1            
+                val_loss = running_loss / len(val_dataloader.dataset)
+                val_acc = running_acc / len(val_dataloader.dataset)
+                val_f1 = running_f1 / len(val_dataloader)
+                check_f1 = val_f1
 
-            val_loss = running_loss / len(val_dataloader.dataset)
-            val_acc = running_acc / len(val_dataloader.dataset)
-            val_f1 = running_f1 / n_iter
-
-            msg = f"val | epoch {epoch:03d}/{config['num_epoch']:03d}, loss: {val_loss:.4f}, acc: {val_acc:.4f}, f1: {val_f1:.4f}"
-            print(msg)
-            noti.send_message(msg)
-            if config['wandb']['use'] == 'True':
-                wandb.log({
-                    f'val loss': val_loss,
-                    f'val acc': val_acc,
-                    f'val f1': val_f1,
-                })
+                msg = f"val | epoch {epoch:03d}/{config['num_epoch']:03d}, loss: {val_loss:.4f}, acc: {val_acc:.4f}, f1: {val_f1:.4f}"
+                print(msg)
+                if config['slack_noti']['use'] == 'True':
+                    noti.send_message(msg)
+                if config['wandb']['use'] == 'True':
+                    wandb.log({
+                        f'val loss': val_loss,
+                        f'val acc': val_acc,
+                        f'val f1': val_f1,
+                    })
 
         ############### save checkpoint ###############
-        if best_f1 < val_f1:
+        if best_f1 < check_f1:
             early_stop_cnt = 0
             best_epoch = epoch
-            best_f1 = val_f1
+            best_f1 = check_f1
 
-            remove_file_path = os.path.join(config['path']['save'], old_file)
+            remove_file_path = os.path.join(config['path']['save_model'], old_file)
             if os.path.isfile(remove_file_path):
                 os.remove(remove_file_path)
 
@@ -211,7 +238,7 @@ def main(config):
                 'epoch': best_epoch,
                 'model_state_dict': model.state_dict(),
                 'f1_score': best_f1
-            }, os.path.join(config['path']['save'], save_name))  
+            }, os.path.join(config['path']['save_model'], save_name))  
             old_file = save_name
         else:
             early_stop_cnt += 1
@@ -220,12 +247,14 @@ def main(config):
         if early_stop_cnt == config['early_stop']:
             msg = f"early stopped"
             print(msg)
-            noti.send_message(msg)
+            if config['slack_noti']['use'] == 'True':
+                noti.send_message(msg)
             break            
 
     msg = f"best f1 is {best_f1:.4f} in epoch {best_epoch:03d}"
     print(msg)
-    noti.send_message(msg)    
+    if config['slack_noti']['use'] == 'True':
+        noti.send_message(msg)    
 
 
 if __name__ == '__main__':
