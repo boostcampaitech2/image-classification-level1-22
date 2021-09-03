@@ -105,7 +105,7 @@ def get_mask(mask):
     else:
         return 'mask'
 
-def get_age(age, threshold):
+def get_age(age, threshold=58):
     assert threshold > 30, 'threshold must be over than 30'
     if age < 30:
         return 'young'
