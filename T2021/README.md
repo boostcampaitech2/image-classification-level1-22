@@ -33,3 +33,9 @@ $ python inference.py --model_path=./checkpoint/efficientnet-b0_best_checkpoint.
 You can inference your model by changing model_path.
 This command makes submission.csv file and soft_submission.csv file.
 soft_submission_csv file is used for ensemble.
+
+Or You can simple use bash file to train and make submission file
+```
+bash make_submission.sh
+
+```
