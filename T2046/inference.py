@@ -29,7 +29,9 @@ def main(config):
     # augmentation
     transform_module = getattr(import_module('data.dataset'), config['augmentation']['submission'])
     transform = transform_module(
-        #resize=[128, 96],
+        resize=[224, 224],
+        mean=0.1,
+        std=0.5
         #mean=dataset.mean,
         #std=dataset.std
     )
